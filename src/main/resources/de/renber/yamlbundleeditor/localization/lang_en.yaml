@@ -1,0 +1,68 @@
+meta:
+  author: René Bergelt
+  flagImage: !image |-
+    iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAIAAAD5gJpuAAAB6ElEQVR4nGOYNHPfjqtvqqcfS2kGosOJ
+    jQdu3n27NrlxTUIdkOGZvc0jbYdtzIaoxp1zAvOr5x5lWLLi1P+Nq/79+3/74ZdFG27PX38HyP4/ped/
+    XyuQMWnh5d65F06eePyvq+bf358TNl1gSGo5uOfku/9Ll/8/uPf///9t064Cyf+pmf8TEoF0Sd+lL4vW
+    fO/uBrLnrbokaTIDpGHhhrt1E68+3Hf/T1P9fwiIifkfHgFi5Gb+f/Hiwp23jp7Li5qOCOpOZAA6FOQG
+    NBAa+t/PD00MqOzMtZcMaxJr/0/u+J+S8j8+/n9k5P+QEJBSH59/rq6/7O1/Wlp+NzH5qqf3VVv7Z7Bb
+    q7wVDhtsbf+YWUDMBeK/f//++fvn958/J6++YLCP29Qz53xU2o4rV9//f/vmZ3I8SJWRyW99Q7CGv0+d
+    HPfP3CohPSskYT2DcDaDedi6xetBIfO5se5DV1dMyTEg+4+27i9NbaCrreyX/Pz//8usuS8SYpqmnmMQ
+    TGeYvPnyv39/v7dXHD1wu7DhYF7DYaAL/4Z4/A5y/vf3b3jattC41dsP3/r758frBN/soiUMVfMOTHFJ
+    ds5cJKgzh0djMofqhPPXXrRKW7SIm5y+8pJBvJhBtIBBOFfEsK53z3VX0zwAPExoqstkeG4AAAAASUVO
+    RK5CYII=
+  language: English
+  languageCode: en
+  localizedLanguage: English
+values:
+  collectionEditor:
+    __value: Bundle collection
+    addLanguage: Add language
+    availableLanguages: Available languages
+    properties:
+      __value: Properties
+      author: Author
+      icon: Icon
+      languageCode: Code
+      localizedName: Localized name
+      name: Language (en)
+      replaceIcon: Replace Icon
+    removeLanguage: Remove language
+  dialogs:
+    file:
+      extensions:
+        descriptions:
+          yaml: Yaml resource bundle
+      loadBundle:
+        title: Yaml-ResourceBundle laden
+  general:
+    applicationTitle: Yaml-ResourceBundle Editor
+    quit: Quit
+  keyEditor:
+    __value: Resources
+    addKey:
+      invalidName: The entered path is invalid for a resource key.
+    properties:
+      __value: Selected key
+      addLocalizedValues: Add values to this key
+      comment: Comment
+      keyPath: Name
+      keyType: Type
+      localizedValues: Localized value
+      valueMissing: <value missing>
+    removeKey: {}
+  menuBar:
+    edit:
+      __value: Edit
+      redo: Redo
+      undo: Undo
+    file:
+      __value: File
+      new: New
+      open: Open...
+      quit: Quit
+  undoredo:
+    properties:
+      resourcekeyviewmodel:
+        comment: comment
+    propertychanged: Changed %1s

@@ -1,0 +1,27 @@
+meta:
+  type: comments
+values:
+  collectionEditor:
+    properties: {}
+  dialogs:
+    __value: s
+    file:
+      extensions:
+        descriptions: {}
+      loadBundle: {}
+  general:
+    applicationTitle: The localized title of the application
+  keyEditor:
+    addKey: {}
+    properties: {}
+    removeKey: {}
+  menuBar:
+    edit:
+      redo: ''
+      undo: ''
+    file: {}
+  undoredo:
+    __value: sd
+    properties:
+      resourcekeyviewmodel: {}
+    propertychanged: '%1s will be replaced with the name of the changed property'

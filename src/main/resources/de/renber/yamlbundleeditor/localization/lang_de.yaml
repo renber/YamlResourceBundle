@@ -1,0 +1,71 @@
+meta:
+  author: René Bergelt
+  flagImage: !image |-
+    iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAIAAAD5gJpuAAACEElEQVR4nGPw8XH28bTycbfw8bJxc7Ny
+    cDSztze0t9fHhRjc3a127doIRDt2rN+2be3mzSs3bFi+du3iVavmL1s2e9Gi6fPmTpo1q2/atM6JE1tA
+    Gjw9bYCqm5qb6+rqqqqqSktL8/PzMzMyk5KSoqOjQ0JCfH19XV1d7Wxte3vrQRrSPG1O7Vg/v65udlXV
+    9JKSyfn5fRkZnYmJzdHRdcHBFT7eha4uOTY2qWamSzurQBr2uZj+3brmb2Xln+Li33l5vzIyfiYm/oiK
+    +hYU/MXb+7OLy0cbmw/Gpu90dT+3lK0Eathrr/9n00qQ6ty8X2lpPxMSvkdGfgsK+uLl9dnZGaj6vbHx
+    Ox2dNyqqn+oLVgA17AFqWL/0d24uSHV8PEh1YOAXT89PTk4fra3fGxm909F+raLySk7uY032UqCG7ZX6
+    f64u+bUp++f6lO+rYr8uDfuyyP/TXPePMx3fT7F8N8HodbfWq3aVF02yH7blzAVq2LZc//fHRT+fZXx/
+    kvj1UdSXB8Gf7np/vO36/qbt2+vmr6/ov7yo+eK80rOzsu8f5M5uAWpYqP/r7dyfr2f9fD3lx8uJ3593
+    f33a/vVJ05dH9Z8fVH26V/bxbvGHO/nvb2e/v5U5t1KfYV2f/rZu/S2t+ps79NfU66+q11/Zq7+6VX9l
+    k/7iVv0F9frzavQX1+kvLNNfWKk/uVgfACjJEU3PfNnEAAAAAElFTkSuQmCC
+  language: Deutsch
+  languageCode: de
+  localizedLanguage: German
+values:
+  collectionEditor:
+    __value: Bundle-Sammlung
+    addLanguage: Sprache hinzufügen
+    availableLanguages: Enthaltene Sprachen
+    properties:
+      __value: Eigenschaften
+      author: Author
+      icon: Symbol
+      languageCode: Kürzel
+      localizedName: Eigenname d. Sprache
+      name: Sprache (engl.)
+      replaceIcon: Symbol ersetzen
+    removeLanguage: Sprache entfernen
+  dialogs:
+    file:
+      extensions:
+        descriptions:
+          yaml: Yaml-ResourceBundle
+      loadBundle:
+        title: Yaml-ResourceBundle laden
+  general:
+    applicationTitle: Yaml-ResourceBundle Editor
+    quit: Beenden
+  keyEditor:
+    __value: Ressourcen
+    addKey:
+      invalidName: Der eingegebene Pfad ist nicht zulässig für einen Ressourcenschlüssel.
+    properties:
+      __value: Ausgewählter Schlüssel
+      addLocalizedValues: Werte zu diesem Knoten hinzufügen
+      comment: Kommentar
+      keyPath: Name
+      keyType: Typ
+      localizedValues: Lokalisierter Wert
+      valueMissing: <Wert fehlt>
+    removeKey:
+      confirmation: Möchten Sie wirklich diesen Schlüssel und all seine Unterschlüssel löschen?
+  menuBar:
+    edit:
+      __value: Bearbeiten
+      redo: Wiederholen
+      undo: Rückgängig
+    file:
+      __value: Datei
+      new: Neu
+      open: Öffnen...
+      quit: Beenden
+      save: Speichern
+      saveAs: Speichern als...
+  undoredo:
+    properties:
+      resourcekeyviewmodel:
+        comment: Kommentar
+    propertychanged: '%1s geändert'
