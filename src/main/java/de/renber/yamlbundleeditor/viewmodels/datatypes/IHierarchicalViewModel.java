@@ -9,8 +9,14 @@ import java.util.List;
 public interface IHierarchicalViewModel {
 	public IHierarchicalViewModel getParent();
 	
+	/**
+	 * Returns the children ViewModels of this ViewModel
+	 */
 	public List getChildren();
 	
+	/**
+	 * Returns if this ViewModel has any children	 
+	 */
 	public boolean getHasChildren();
 	
 	/**

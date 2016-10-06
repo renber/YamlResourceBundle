@@ -33,7 +33,7 @@ values:
       extensions:
         descriptions:
           yaml: Yaml resource bundle
-      loadBundle:
+      loadCollection:
         title: Yaml-ResourceBundle laden
   general:
     applicationTitle: Yaml-ResourceBundle Editor
@@ -42,6 +42,8 @@ values:
     __value: Resources
     addKey:
       invalidName: The entered path is invalid for a resource key.
+    copyPathToClipboard:
+      tooltip: Copy path to clipboard
     properties:
       __value: Selected key
       addLocalizedValues: Add values to this key

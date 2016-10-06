@@ -33,7 +33,7 @@ values:
       extensions:
         descriptions:
           yaml: Yaml-ResourceBundle
-      loadBundle:
+      loadCollection:
         title: Yaml-ResourceBundle laden
   general:
     applicationTitle: Yaml-ResourceBundle Editor
@@ -42,6 +42,8 @@ values:
     __value: Ressourcen
     addKey:
       invalidName: Der eingegebene Pfad ist nicht zulässig für einen Ressourcenschlüssel.
+    copyPathToClipboard:
+      tooltip: Pfad in Zwischenablage kopieren
     properties:
       __value: Ausgewählter Schlüssel
       addLocalizedValues: Werte zu diesem Knoten hinzufügen

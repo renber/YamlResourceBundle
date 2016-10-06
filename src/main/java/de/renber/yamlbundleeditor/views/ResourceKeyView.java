@@ -9,6 +9,7 @@ import java.beans.Beans;
 import java.util.ResourceBundle;
 
 import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.IObservable;
@@ -36,10 +37,13 @@ import de.renber.databinding.ComplexBind;
 import de.renber.databinding.commands.CommandManager;
 import de.renber.databinding.commands.ICommand;
 import de.renber.databinding.context.IDataContext;
+import de.renber.databinding.context.IValueDataContext;
+import de.renber.databinding.converters.FuncConverter;
 import de.renber.databinding.providers.ImageLabelProvider;
 import de.renber.databinding.providers.PropertyColumnLabelProvider;
 import de.renber.databinding.templating.ContentPresenter;
 import de.renber.databinding.templating.ITemplatingCompositeFactory;
+import de.renber.yamlbundleeditor.mvvm.ResourceKeyViewModelTreeFilter;
 import de.renber.yamlbundleeditor.services.IconProvider;
 import de.renber.yamlbundleeditor.utils.DesignTimeResourceBundle;
 import de.renber.yamlbundleeditor.utils.providers.ResourceKeyLabelProvider;
@@ -81,7 +85,7 @@ import org.eclipse.swt.widgets.ToolItem;
 
 public class ResourceKeyView extends Composite {
 
-	IDataContext dataContext;
+	IValueDataContext dataContext;
 	DataBindingContext bindingContext;
 	CommandManager commandManager;
 
@@ -106,6 +110,12 @@ public class ResourceKeyView extends Composite {
 	private Composite composite_1;
 	private Button btnCopyPathToClipboard;
 	private ToolItem tltmKeyRemove;
+	private Button btnRenameKey;
+	private Text txtFilterKeys;
+	private Label lblFilter;
+	private Composite compositeFilter;	
+	private ToolBar toolBar_1;
+	private ToolItem tltmResetFilter;
 
 	/**
 	 * Create the composite.
@@ -113,7 +123,7 @@ public class ResourceKeyView extends Composite {
 	 * @param parent
 	 * @param style
 	 */
-	public ResourceKeyView(Composite parent, int style, IDataContext dataContext, ResourceBundle langBundle) {
+	public ResourceKeyView(Composite parent, int style, IValueDataContext dataContext, ResourceBundle langBundle) {
 		super(parent, style);
 
 		this.dataContext = dataContext;
@@ -140,21 +150,43 @@ public class ResourceKeyView extends Composite {
 
 		toolBar = new ToolBar(leftComposite, SWT.FLAT | SWT.RIGHT);
 		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
-		treeComposite = new Composite(leftComposite, SWT.NONE);
-		treeComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		treeComposite.setSize(156, 371);
-		treeComposite.setLayout(new GridLayout(1, false));		
 
 		tltmKeyAdd = new ToolItem(toolBar, SWT.NONE);
 		tltmKeyAdd.setImage(IconProvider.getImage("key_add"));
-		
-		tltmKeyRemove = new ToolItem(toolBar, SWT.NONE);
-		tltmKeyRemove.setImage(IconProvider.getImage("key_delete"));		
 
-		treeViewer = new TreeViewer(treeComposite, SWT.FULL_SELECTION);		
-		treeViewer.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));		
+		tltmKeyRemove = new ToolItem(toolBar, SWT.NONE);
+		tltmKeyRemove.setImage(IconProvider.getImage("key_delete"));
+
+		compositeFilter = new Composite(leftComposite, SWT.NONE);
+		GridLayout gl_compositeFilter = new GridLayout(3, false);
+		gl_compositeFilter.horizontalSpacing = 0;
+		compositeFilter.setLayout(gl_compositeFilter);
+		compositeFilter.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+
+		lblFilter = new Label(compositeFilter, SWT.NONE);
+		lblFilter.setText("Filter:");			
+
+		txtFilterKeys = new Text(compositeFilter, SWT.BORDER);
+		GridData gd_txtFilterKeys = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_txtFilterKeys.horizontalIndent = 5;
+		txtFilterKeys.setLayoutData(gd_txtFilterKeys);
 		
+		toolBar_1 = new ToolBar(compositeFilter, SWT.FLAT | SWT.RIGHT);
+		
+		tltmResetFilter = new ToolItem(toolBar_1, SWT.NONE);
+		tltmResetFilter.setImage(IconProvider.getImage("reset_filter"));		
+		tltmResetFilter.addListener(SWT.Selection, (e) -> {
+			// reset the filter text
+			txtFilterKeys.setText("");
+		});
+
+		treeComposite = new Composite(leftComposite, SWT.NONE);
+		treeComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));		
+		treeComposite.setLayout(new GridLayout(1, false));
+
+		treeViewer = new TreeViewer(treeComposite, SWT.FULL_SELECTION);
+		treeViewer.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));		
+
 		rightComposite = new Composite(sashForm, SWT.NONE);
 		rightComposite.setLayout(new GridLayout(1, false));
 
@@ -169,7 +201,7 @@ public class ResourceKeyView extends Composite {
 
 		composite_1 = new Composite(grpSelectedKey, SWT.NONE);
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		GridLayout gl_composite_1 = new GridLayout(2, false);
+		GridLayout gl_composite_1 = new GridLayout(3, false);
 		gl_composite_1.verticalSpacing = 0;
 		gl_composite_1.marginWidth = 0;
 		gl_composite_1.marginHeight = 0;
@@ -182,8 +214,14 @@ public class ResourceKeyView extends Composite {
 		lblPath.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		lblPath.setText("path of the key");
 
+		btnRenameKey = new Button(composite_1, SWT.NONE);
+		btnRenameKey.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		btnRenameKey.setToolTipText(langBundle.getString("keyEditor:renameKey:tooltip"));
+		btnRenameKey.setImage(IconProvider.getImage("rename"));
+
 		btnCopyPathToClipboard = new Button(composite_1, SWT.NONE);
 		btnCopyPathToClipboard.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		btnCopyPathToClipboard.setToolTipText(langBundle.getString("keyEditor:copyPathToClipboard:tooltip"));
 		btnCopyPathToClipboard.setImage(IconProvider.getImage("copy"));
 
 		lblResourceType = new Label(grpSelectedKey, SWT.NONE);
@@ -232,6 +270,13 @@ public class ResourceKeyView extends Composite {
 		// bind the hierarchical resource keys to the tree
 		bind.tree(treeViewer, dataContext.value("values").observe(), new ResourceKeyObservableFactory(), new ResourceKeyTreeStructureAdvisor(), new ResourceKeyLabelProvider());
 
+		// enable the tree to be filtered (with a slight input delay)						
+		treeViewer.setFilters(new ResourceKeyViewModelTreeFilter(treeViewer, WidgetProperties.text(SWT.Modify).observeDelayed(250, txtFilterKeys)));
+		
+		// only enable filter text when a collection has been loaded 
+		bindingContext.bindValue(WidgetProperties.enabled().observe(txtFilterKeys), dataContext.observe(), null, UpdateValueStrategy.create(FuncConverter.create(Object.class, Boolean.class, (item) -> item != null)));
+		bindingContext.bindValue(WidgetProperties.enabled().observe(tltmResetFilter), WidgetProperties.text(SWT.Modify).observe(txtFilterKeys), null, UpdateValueStrategy.create(FuncConverter.create(String.class, Boolean.class, (text) -> !text.isEmpty())));
+		
 		// show the details for the selected tree node
 		IViewerObservableValue selectedKey = ViewerProperties.singleSelection().observe(treeViewer);
 
@@ -239,7 +284,7 @@ public class ResourceKeyView extends Composite {
 		bindingContext.bindValue(selectedKey, dataContext.value("selectedResourceKey").observe());
 
 		// only show details when a key is selected
-		bind.visibility(dataContext.value("selectedResourceKey").observe(), (x) -> x != null, grpSelectedKey, false);
+		bind.visibility(dataContext.value("selectedResourceKey").observe(), (x) -> x != null, grpSelectedKey, false);			
 
 		// bind the details of the selected resource key
 		IObservableValue detailPath = BeanProperties.value("path").observeDetail(selectedKey);
@@ -273,8 +318,10 @@ public class ResourceKeyView extends Composite {
 
 		// commands
 		commandManager.bind(btnAddLocalizedValues, dataContext.value("selectedResourceKey").value("addMissingValuesCommand"));
+		commandManager.bind(btnRenameKey, dataContext.value("selectedResourceKey").value("renameCommand"));
+		commandManager.bind(btnCopyPathToClipboard, dataContext.value("selectedResourceKey").value("copyPathToClipboardCommand"));
 		commandManager.bind(tltmKeyAdd, dataContext.value("addResourceKeyCommand"));
-		commandManager.bind(tltmKeyRemove, dataContext.value("removeResourceKeyCommand"));		
+		commandManager.bind(tltmKeyRemove, dataContext.value("removeResourceKeyCommand"));
 	}
 
 	@Override
@@ -288,13 +335,13 @@ public class ResourceKeyView extends Composite {
 class ResourceKeyObservableFactory implements IObservableFactory {
 
 	@Override
-	public IObservable createObservable(Object item) {								
-		if (item instanceof ResourceKeyViewModel)			
-			return  ((ResourceKeyViewModel) item).getChildren();
-		
+	public IObservable createObservable(Object item) {
+		if (item instanceof ResourceKeyViewModel)
+			return ((ResourceKeyViewModel) item).getChildren();
+
 		if (item instanceof IObservable)
-			return (IObservable)item;		
-		
+			return (IObservable) item;
+
 		return null;
 	}
 
@@ -304,11 +351,11 @@ class ResourceKeyTreeStructureAdvisor extends TreeStructureAdvisor {
 
 	@Override
 	public Object getParent(Object element) {
-		return ((ResourceKeyViewModel) element).getParent();		
+		return ((ResourceKeyViewModel) element).getParent();
 	}
 
 	@Override
 	public Boolean hasChildren(Object element) {
-		return ((ResourceKeyViewModel) element).getHasChildren();		
+		return ((ResourceKeyViewModel) element).getHasChildren();
 	}
 }

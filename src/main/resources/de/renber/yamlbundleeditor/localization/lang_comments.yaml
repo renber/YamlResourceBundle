@@ -13,6 +13,7 @@ values:
     applicationTitle: The localized title of the application
   keyEditor:
     addKey: {}
+    copyPathToClipboard: {}
     properties: {}
     removeKey: {}
   menuBar:

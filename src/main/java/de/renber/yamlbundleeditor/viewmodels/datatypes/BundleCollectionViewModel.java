@@ -36,6 +36,7 @@ import de.renber.yamlbundleeditor.services.IUndoSupport;
 import de.renber.yamlbundleeditor.services.IconProvider;
 import de.renber.yamlbundleeditor.services.impl.FileExtFilter;
 import de.renber.yamlbundleeditor.utils.ListUtils;
+import de.renber.yamlbundleeditor.utils.ResourceKeyUtils;
 
 /**
  * Represents a collection of resource bundles
@@ -107,7 +108,7 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 		
 		// wrap resource keys in view models
 		values = new UndoableList<ResourceKey, ResourceKeyViewModel>(model.getValues(),
-				(keyModel) -> new ResourceKeyViewModel(keyModel, this, getUndoSupport()), getUndoSupport());				
+				(keyModel) -> new ResourceKeyViewModel(keyModel, this, getUndoSupport(), dialogService, loc), getUndoSupport());				
 		
 		createCommands();
 	}	
@@ -201,9 +202,8 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 			
 			if (value != null) {				
 				// split the key path				
-				String[] parts = value.split("\\:");						
-				
-				// make sure that there are no empty paths
+				String[] parts = value.split("\\:");										
+				// make sure that there are no empty parts
 				if (parts.length == 0 || QuIterables.query(parts).exists(x -> x.isEmpty() || ":".equals(x))) {
 					dialogService.showMessageDialog(loc.getString("dialogs:error:title"), loc.getString("keyEditor:addKey:invalidName"));
 					return;
@@ -214,11 +214,12 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 				
 				if (parts.length > 1) {					
 					// find the parent key
-					keyvm = createPath(null, QuIterables.query(parts));
+					keyvm = ResourceKeyUtils.createPath(this, null, QuIterables.query(parts),
+							(newKey, parentKey) -> new ResourceKeyViewModel(newKey, parentKey, this, getUndoSupport(), dialogService, loc));
 				} else {
 					key = new ResourceKey();
 					key.name = value;
-					keyvm = new ResourceKeyViewModel(key, null, this, getUndoSupport());
+					keyvm = new ResourceKeyViewModel(key, null, this, getUndoSupport(), dialogService, loc);
 					getValues().add(keyvm);
 				}
 				
@@ -241,43 +242,6 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 				selectedResourceKey.getParent().getChildren().remove(selectedResourceKey);
 		}, 
 		() -> getSelectedResourceKey() != null);
-	}
-	
-	/**
-	 * Return the key at the end of the given path, creates all intermediate keys if they do not exist
-	 * @param parent
-	 * @param path
-	 * @return
-	 */
-	private ResourceKeyViewModel createPath(ResourceKeyViewModel parent, Queriable<String> path) {		
-		if (path.isEmpty())
-			return parent;
-		
-		List<ResourceKeyViewModel> list;
-		if (parent == null)
-			list = getValues();
-		else
-			list = parent.getChildren();
-		
-		String pathPart = path.take(1).single();
-		
-		// does this part already exist?
-		ResourceKeyViewModel key = QuIterables.query(list).firstOrDefault(x -> x.getName().compareToIgnoreCase(pathPart) == 0);
-		if (key == null) {
-			// create this key
-			ResourceKey pathKey = new ResourceKey();
-			pathKey.name = pathPart;
-			key = new ResourceKeyViewModel(pathKey, parent, this, getUndoSupport());
-			ListUtils.insertSorted(key, list, (o1, o2) -> o1.getName().compareTo(o2.getName()));			
-		} else {
-			// if this key exists but has no value
-			// convert it to an intermediate node
-			if (QuIterables.query(key.getLocalizedValues()).all(x -> !x.getHasValue())) {
-				key.getLocalizedValues().clear();
-			}
-		}
-		
-		return createPath(key, path.skip(1));
 	}
 	
 	// --------------------------
