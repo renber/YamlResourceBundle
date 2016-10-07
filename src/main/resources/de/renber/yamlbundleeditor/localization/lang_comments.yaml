@@ -8,14 +8,19 @@ values:
     file:
       extensions:
         descriptions: {}
-      loadBundle: {}
+      loadCollection: {}
   general:
     applicationTitle: The localized title of the application
   keyEditor:
     addKey: {}
     copyPathToClipboard: {}
+    find: {}
+    findNext: {}
+    jumpToKey:
+      prompt: {}
     properties: {}
     removeKey: {}
+    renameKey: {}
   menuBar:
     edit:
       redo: ''

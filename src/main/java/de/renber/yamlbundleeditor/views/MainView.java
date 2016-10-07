@@ -80,6 +80,8 @@ public class MainView extends Shell implements ViewCallback {
 	private Menu menu_2;
 	private MenuItem mntmUndo;
 	private MenuItem mntmRedo;
+	private MenuItem mntmCollectionExport;
+	private MenuItem mntmNewItem;
 	
 	/**
 	 * Create the shell.
@@ -142,6 +144,11 @@ public class MainView extends Shell implements ViewCallback {
 		
 		mntmCollectionSaveAs = new MenuItem(menu_1, SWT.NONE);
 		mntmCollectionSaveAs.setText(langBundle.getString("menuBar:file:saveAs"));
+		
+		mntmNewItem = new MenuItem(menu_1, SWT.SEPARATOR);
+		
+		mntmCollectionExport = new MenuItem(menu_1, SWT.NONE);
+		mntmCollectionExport.setText(langBundle.getString("menuBar:file:export"));
 		
 		new MenuItem(menu_1, SWT.SEPARATOR);
 		

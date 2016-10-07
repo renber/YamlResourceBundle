@@ -28,12 +28,12 @@ public class WatermarkText extends Text implements PaintListener {
 	public void paintControl(PaintEvent event) {		
 		// if no text has been entered show a watermark text, but only if we do not have focus
 		if (getDisplay().getFocusControl() != this && getText() == null || getText().isEmpty()) {
-			GC g = event.gc;
+			GC g = event.gc;			
 			g.setForeground(watermarkForeground);
 			Rectangle rect = this.getClientArea();			
 			Point strSize = g.textExtent(watermarkText);
 			
-			g.drawString(watermarkText, rect.x + 5, rect.y + (rect.height - strSize.y) / 2);	
+			g.drawString(watermarkText, rect.x + 5, rect.y + (rect.height - strSize.y) / 2, true);	
 		}		
 	}
 	

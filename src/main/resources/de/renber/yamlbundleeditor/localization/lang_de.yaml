@@ -42,8 +42,20 @@ values:
     __value: Ressourcen
     addKey:
       invalidName: Der eingegebene Pfad ist nicht zulässig für einen Ressourcenschlüssel.
+      tooltip: Schlüssel hinzufügen
     copyPathToClipboard:
       tooltip: Pfad in Zwischenablage kopieren
+    filter: Filtern nach Pfad
+    find:
+      tooltip: Suchen
+    findNext:
+      tooltip: Nächster Treffer
+    jumpToKey:
+      notFound: Es existiert kein Schlüssel mit diesem Pfad.
+      prompt:
+        message: 'Pfad des Schlüssels:'
+        title: Zu Schlüssel springen
+      tooltip: Gehe zu
     properties:
       __value: Ausgewählter Schlüssel
       addLocalizedValues: Werte zu diesem Knoten hinzufügen
@@ -54,6 +66,9 @@ values:
       valueMissing: <Wert fehlt>
     removeKey:
       confirmation: Möchten Sie wirklich diesen Schlüssel und all seine Unterschlüssel löschen?
+      tooltip: Schlüssel löschen
+    renameKey:
+      tooltip: Umbenennen / Verschieben
   menuBar:
     edit:
       __value: Bearbeiten
@@ -67,6 +82,7 @@ values:
       save: Speichern
       saveAs: Speichern als...
   undoredo:
+    keymoved: Pfad bearbeitet
     properties:
       resourcekeyviewmodel:
         comment: Kommentar

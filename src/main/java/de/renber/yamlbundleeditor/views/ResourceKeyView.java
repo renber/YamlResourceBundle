@@ -43,6 +43,7 @@ import de.renber.databinding.providers.ImageLabelProvider;
 import de.renber.databinding.providers.PropertyColumnLabelProvider;
 import de.renber.databinding.templating.ContentPresenter;
 import de.renber.databinding.templating.ITemplatingCompositeFactory;
+import de.renber.yamlbundleeditor.controls.WatermarkText;
 import de.renber.yamlbundleeditor.mvvm.ResourceKeyViewModelTreeFilter;
 import de.renber.yamlbundleeditor.services.IconProvider;
 import de.renber.yamlbundleeditor.utils.DesignTimeResourceBundle;
@@ -105,17 +106,24 @@ public class ResourceKeyView extends Composite {
 	private Button btnAddLocalizedValues;
 	private Composite rightComposite;
 	private Composite leftComposite;
-	private ToolBar toolBar;
+	private ToolBar toolBarKeyTree;
+	private ToolBar toolBarRight;
 	private ToolItem tltmKeyAdd;
 	private Composite composite_1;
 	private Button btnCopyPathToClipboard;
 	private ToolItem tltmKeyRemove;
 	private Button btnRenameKey;
-	private Text txtFilterKeys;
-	private Label lblFilter;
+	private WatermarkText txtFilterKeys;
 	private Composite compositeFilter;	
-	private ToolBar toolBar_1;
+	private ToolBar toolBarFilter;
 	private ToolItem tltmResetFilter;
+	private Composite composite;
+	private ToolItem tltmJumpToKey;
+	private ToolItem toolItem;
+	private ToolItem tltmFind;
+	private ToolItem tltmFindNext;
+	private ToolItem toolItem_1;
+	private Label lblSeparator;
 
 	/**
 	 * Create the composite.
@@ -145,35 +153,57 @@ public class ResourceKeyView extends Composite {
 
 		leftComposite = new Composite(sashForm, SWT.NONE);
 		GridLayout gl_leftComposite = new GridLayout(1, false);
+		gl_leftComposite.marginWidth = 0;
+		gl_leftComposite.horizontalSpacing = 0;
 		gl_leftComposite.verticalSpacing = 0;
-		leftComposite.setLayout(gl_leftComposite);
+		leftComposite.setLayout(gl_leftComposite);		
 
-		toolBar = new ToolBar(leftComposite, SWT.FLAT | SWT.RIGHT);
-		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		toolBarKeyTree = new ToolBar(leftComposite, SWT.FLAT | SWT.RIGHT);
+		toolBarKeyTree.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-		tltmKeyAdd = new ToolItem(toolBar, SWT.NONE);
+		tltmKeyAdd = new ToolItem(toolBarKeyTree, SWT.NONE);
 		tltmKeyAdd.setImage(IconProvider.getImage("key_add"));
+		tltmKeyAdd.setToolTipText(langBundle.getString("keyEditor:addKey:tooltip"));
 
-		tltmKeyRemove = new ToolItem(toolBar, SWT.NONE);
+		tltmKeyRemove = new ToolItem(toolBarKeyTree, SWT.NONE);
 		tltmKeyRemove.setImage(IconProvider.getImage("key_delete"));
-
+		tltmKeyRemove.setToolTipText(langBundle.getString("keyEditor:removeKey:tooltip"));
+		
+		toolItem = new ToolItem(toolBarKeyTree, SWT.SEPARATOR);
+		
+		tltmFind = new ToolItem(toolBarKeyTree, SWT.NONE);
+		tltmFind.setImage(IconProvider.getImage("find"));
+		tltmFind.setToolTipText(langBundle.getString("keyEditor:find:tooltip"));
+		
+		tltmFindNext = new ToolItem(toolBarKeyTree, SWT.NONE);
+		tltmFindNext.setImage(IconProvider.getImage("find_next"));
+		tltmFindNext.setToolTipText(langBundle.getString("keyEditor:findNext:tooltip"));
+		
+		toolItem_1 = new ToolItem(toolBarKeyTree, SWT.SEPARATOR);
+		
+		tltmJumpToKey = new ToolItem(toolBarKeyTree, SWT.NONE);
+		tltmJumpToKey.setImage(IconProvider.getImage("jump_to"));
+		tltmJumpToKey.setToolTipText(langBundle.getString("keyEditor:jumpToKey:tooltip"));
+		
+		lblSeparator = new Label(leftComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
+		lblSeparator.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		lblSeparator.setText("New Label");
+		
 		compositeFilter = new Composite(leftComposite, SWT.NONE);
-		GridLayout gl_compositeFilter = new GridLayout(3, false);
+		GridLayout gl_compositeFilter = new GridLayout(2, false);
+		gl_compositeFilter.marginTop = 5;
+		gl_compositeFilter.marginWidth = 0;
+		gl_compositeFilter.marginHeight = 0;
 		gl_compositeFilter.horizontalSpacing = 0;
 		compositeFilter.setLayout(gl_compositeFilter);
 		compositeFilter.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-		lblFilter = new Label(compositeFilter, SWT.NONE);
-		lblFilter.setText("Filter:");			
-
-		txtFilterKeys = new Text(compositeFilter, SWT.BORDER);
-		GridData gd_txtFilterKeys = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_txtFilterKeys.horizontalIndent = 5;
-		txtFilterKeys.setLayoutData(gd_txtFilterKeys);
+		txtFilterKeys = new WatermarkText(compositeFilter, SWT.BORDER, langBundle.getString("keyEditor:filter"));		
+		txtFilterKeys.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
-		toolBar_1 = new ToolBar(compositeFilter, SWT.FLAT | SWT.RIGHT);
+		toolBarFilter = new ToolBar(compositeFilter, SWT.FLAT | SWT.RIGHT);
 		
-		tltmResetFilter = new ToolItem(toolBar_1, SWT.NONE);
+		tltmResetFilter = new ToolItem(toolBarFilter, SWT.NONE);
 		tltmResetFilter.setImage(IconProvider.getImage("reset_filter"));		
 		tltmResetFilter.addListener(SWT.Selection, (e) -> {
 			// reset the filter text
@@ -182,7 +212,13 @@ public class ResourceKeyView extends Composite {
 
 		treeComposite = new Composite(leftComposite, SWT.NONE);
 		treeComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));		
-		treeComposite.setLayout(new GridLayout(1, false));
+		GridLayout gl_treeComposite = new GridLayout(1, false);
+		gl_treeComposite.marginRight = 2;
+		gl_treeComposite.marginLeft = 2;
+		gl_treeComposite.marginTop = 2;
+		gl_treeComposite.marginHeight = 0;
+		gl_treeComposite.marginWidth = 0;
+		treeComposite.setLayout(gl_treeComposite);
 
 		treeViewer = new TreeViewer(treeComposite, SWT.FULL_SELECTION);
 		treeViewer.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));		
@@ -322,6 +358,9 @@ public class ResourceKeyView extends Composite {
 		commandManager.bind(btnCopyPathToClipboard, dataContext.value("selectedResourceKey").value("copyPathToClipboardCommand"));
 		commandManager.bind(tltmKeyAdd, dataContext.value("addResourceKeyCommand"));
 		commandManager.bind(tltmKeyRemove, dataContext.value("removeResourceKeyCommand"));
+		commandManager.bind(tltmFind, dataContext.value("findCommand"));
+		commandManager.bind(tltmFindNext, dataContext.value("findNextCommand"));
+		commandManager.bind(tltmJumpToKey, dataContext.value("jumpToKeyCommand"));
 	}
 
 	@Override

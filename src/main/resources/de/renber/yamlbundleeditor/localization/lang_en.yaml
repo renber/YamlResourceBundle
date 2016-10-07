@@ -44,6 +44,17 @@ values:
       invalidName: The entered path is invalid for a resource key.
     copyPathToClipboard:
       tooltip: Copy path to clipboard
+    filter: Filter by path
+    find:
+      tooltip: Find
+    findNext:
+      tooltip: Next result
+    jumpToKey:
+      notFound: No key with this path exists.
+      prompt:
+        message: 'Full path of the key:'
+        title: Jump to key
+      tooltip: Jump to
     properties:
       __value: Selected key
       addLocalizedValues: Add values to this key
@@ -52,7 +63,10 @@ values:
       keyType: Type
       localizedValues: Localized value
       valueMissing: <value missing>
-    removeKey: {}
+    removeKey:
+      tooltip: Remove key
+    renameKey:
+      tooltip: Rename / Move
   menuBar:
     edit:
       __value: Edit
@@ -64,6 +78,7 @@ values:
       open: Open...
       quit: Quit
   undoredo:
+    keymoved: Edited path
     properties:
       resourcekeyviewmodel:
         comment: comment

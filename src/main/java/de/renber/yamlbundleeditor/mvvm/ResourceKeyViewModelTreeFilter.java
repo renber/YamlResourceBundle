@@ -47,7 +47,7 @@ public class ResourceKeyViewModelTreeFilter extends ViewerFilter {
 		viewer.refresh();
 
 		// reveal matched items
-		viewer.setExpandedElements(itemsToExpand.keySet().toArray());		
+		viewer.setExpandedElements(itemsToExpand.keySet().toArray());
 	}
 
 	@Override

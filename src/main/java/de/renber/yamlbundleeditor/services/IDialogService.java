@@ -13,7 +13,9 @@ public interface IDialogService {
 	public File showSaveFileDialog(String title, FileExtFilter...fileFilters);
 	
 	public boolean showQuestionDialog(String message);
-		
+	
+	public void showInformationDialog(String message);
+	
 	public void showMessageDialog(String title, String message);
 	
 	public String showTextPrompt(String title, String message, String defaultValue);

@@ -35,6 +35,10 @@ public class DefaultDialogService implements IDialogService {
 		return MessageDialog.openQuestion(getParent(), loc.getString("dialogs:confirmation:title"), message);
 	}
 	
+	public void showInformationDialog(String message) {
+		MessageDialog.openInformation(getParent(), loc.getString("dialogs:information:title"), message);
+	}
+	
 	@Override
 	public File showOpenFileDialog(String title, FileExtFilter...fileFilters) {
 		FileDialog dialog = new FileDialog(getParent());

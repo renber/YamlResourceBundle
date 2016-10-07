@@ -24,6 +24,7 @@ import de.renber.yamlbundleeditor.models.BundleMetaInfo;
 import de.renber.yamlbundleeditor.models.LocalizedValue;
 import de.renber.yamlbundleeditor.models.ResourceKey;
 import de.renber.yamlbundleeditor.mvvm.TransformedModelList;
+import de.renber.yamlbundleeditor.redoundo.KeyMoveAction;
 import de.renber.yamlbundleeditor.redoundo.Undoable;
 import de.renber.yamlbundleeditor.redoundo.UndoableList;
 import de.renber.yamlbundleeditor.services.IDialogService;
@@ -112,51 +113,18 @@ public class ResourceKeyViewModel extends DataViewModelBase<ResourceKey> impleme
 		});
 
 		renameCommand = new RelayCommand(() -> {
-
+			
 			String oldPath = getPath();
 			String newPath = dialogService.showTextPrompt(loc.getString("keyEditor:editKey:promptTitle"), loc.getString("keyEditor:editKey:promptMessage"), oldPath, true);
 
 			if (newPath == null || oldPath.equals(newPath))
 				return;
-
-			// split the key path
-			String[] oldParts = oldPath.split("\\:");
-			String[] newParts = newPath.split("\\:");
-			// make sure that there are no empty parts
-			if (newParts.length == 0 || QuIterables.query(newParts).exists(x -> x.isEmpty() || ":".equals(x))) {
-				dialogService.showMessageDialog(loc.getString("dialogs:error:title"), loc.getString("keyEditor:editKey:invalidName"));
-				return;
-			}
-
-			// check if only the name (and not parent) has changed
-			if (oldParts.length == newParts.length && QuIterables.query(oldParts).take(oldParts.length - 1).sequenceEquals(QuIterables.query(newParts).take(newParts.length - 1))) {
-				// nothing to do
-			} else {
-				// if the path has changed, remove the key from its current
-				// parent and insert it to the new one
-				if (parent == null)
-					owningCollection.getValues().remove(this);
-				else
-					parent.getChildren().remove(this);				
-
-				if (newParts.length > 1) {
-					// create/get the new parent
-					ResourceKeyViewModel newParent = ResourceKeyUtils.createPath(owningCollection, null, QuIterables.query(newParts).take(newParts.length - 1),
-							(newKey, parentKey) -> new ResourceKeyViewModel(newKey, parentKey, owningCollection, getUndoSupport(), dialogService, loc));
-					setParent(newParent);
-					newParent.getChildren().add(this);
-				} else {
-					// add the key to root
-					setParent(null);
-					owningCollection.getValues().add(this);
-				}
-			}
 			
-			// change this keys name
-			setName(newParts[newParts.length - 1]);
-
-			owningCollection.setSelectedResourceKey(this);
-
+			try {
+				move(newPath);	
+			} catch (IllegalArgumentException e) {
+				dialogService.showMessageDialog(loc.getString("dialogs:error:title"), loc.getString("keyEditor:editKey:invalidName"));
+			}
 		}, () -> owningCollection != null);
 
 		copyPathToClipboardCommand = new RelayCommand(() -> {
@@ -180,6 +148,62 @@ public class ResourceKeyViewModel extends DataViewModelBase<ResourceKey> impleme
 
 		firePropertyChanged("isIntermediateNode", null, getIsIntermediateNode());
 	}
+	
+	/**
+	 * Move this key to a new path, Can also be used to rename the key
+	 * @param newPath The new path of the key (including its (new) name)
+	 */
+	public void move(String newPath) {
+		try {
+			String oldPath = getPath();
+			
+			// split the key path
+			String[] oldParts = oldPath.split("\\:");
+			String[] newParts = newPath.split("\\:");
+			// make sure that there are no empty parts
+			if (newParts.length == 0 || QuIterables.query(newParts).exists(x -> x.isEmpty() || ":".equals(x))) {
+				throw new IllegalArgumentException("newPath");				
+			}
+			
+			// we'll create a custom undo action, so disable auto-recording
+			getUndoSupport().suspend();					
+
+			// check if only the name (and not parent) has changed
+			if (oldParts.length == newParts.length && QuIterables.query(oldParts).take(oldParts.length - 1).sequenceEquals(QuIterables.query(newParts).take(newParts.length - 1))) {
+				// nothing to do
+			} else {
+				// if the path has changed, remove the key from its current
+				// parent and insert it to the new one
+				if (parent == null)
+					owningCollection.getValues().remove(this);
+				else
+					parent.getChildren().remove(this);
+
+				if (newParts.length > 1) {
+					// create/get the new parent
+					ResourceKeyViewModel newParent = ResourceKeyUtils.createPath(owningCollection, null, QuIterables.query(newParts).take(newParts.length - 1),
+							(newKey, parentKey) -> new ResourceKeyViewModel(newKey, parentKey, owningCollection, getUndoSupport(), dialogService, loc));
+					setParent(newParent);
+					newParent.getChildren().add(this);
+				} else {
+					// add the key to root
+					setParent(null);
+					owningCollection.getValues().add(this);
+				}
+			}
+
+			// change this key's name
+			setName(newParts[newParts.length - 1]);
+			
+			getUndoSupport().resume();
+			getUndoSupport().record(new KeyMoveAction(this, oldPath, newPath));
+
+			owningCollection.setSelectedResourceKey(this);
+		} finally {
+			// make sure that redo/undo continues to work even on error			
+			getUndoSupport().resume();
+		}
+	}
 
 	// -------------------
 	// getters and setters
@@ -196,10 +220,13 @@ public class ResourceKeyViewModel extends DataViewModelBase<ResourceKey> impleme
 		return model.name;
 	}
 
-	public void setName(String newValue) {
+	/**
+	 * Name cannot be changed from the outside Use move() to update it
+	 */
+	private void setName(String newValue) {
 		String oldPath = getPath();
 		changeProperty(model, "name", newValue);
-		
+
 		// path is directly affected by the name change
 		firePropertyChanged("path", oldPath, getPath());
 	}

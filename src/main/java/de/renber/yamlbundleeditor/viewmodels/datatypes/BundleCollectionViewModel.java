@@ -54,6 +54,9 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 	
 	private boolean hasUnsavedChanges = false;
 	
+	// The last search term used by the FindCommand
+	private String currentSearchTerm;
+	
 	private BundleMetaViewModel selectedBundle;
 	private ResourceKeyViewModel selectedResourceKey;	
 	
@@ -65,6 +68,11 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 	
 	private ICommand addResourceKeyCommand;
 	private ICommand removeResourceKeyCommand;
+	
+	private ICommand findCommand;
+	private ICommand findNextCommand;
+	
+	private ICommand jumpToKeyCommand;
 	
 	/**
 	 * Base name of the merged bundles
@@ -242,6 +250,42 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 				selectedResourceKey.getParent().getChildren().remove(selectedResourceKey);
 		}, 
 		() -> getSelectedResourceKey() != null);
+		
+		findCommand = new RelayCommand( () -> {
+			
+			String searchTerm = dialogService.showTextPrompt(loc.getString("keyEditor:find:prompt:title"), loc.getString("keyEditor:find:prompt:message"), "");
+			
+			if (searchTerm != null && !searchTerm.isEmpty()) {
+				currentSearchTerm = searchTerm;
+			}
+			
+		});
+		
+		findNextCommand = new RelayCommand( () -> {
+			
+		}, () -> currentSearchTerm != null);
+		
+		jumpToKeyCommand = new RelayCommand( () -> {
+			
+			String path = dialogService.showTextPrompt(loc.getString("keyEditor:jumpToKey:prompt:title"), loc.getString("keyEditor:jumpToKey:prompt:message"), "");
+			if (path != null) {
+				// find the key with this path
+				
+				try {
+					String[] parts = ResourceKeyUtils.segmentPath(path);					
+					ResourceKeyViewModel key = ResourceKeyUtils.findKey(this, null, QuIterables.query(parts));
+					
+					if (key == null)
+					 throw new IllegalArgumentException("No key found with this path");
+					
+					// highlight the found key
+					setSelectedResourceKey(key);
+				} catch (IllegalArgumentException e) {
+					// path is invalid -> key cannot exist
+					dialogService.showInformationDialog(loc.getString("keyEditor:jumpToKey:notFound"));
+				}							
+			}			
+		});
 	}
 	
 	// --------------------------
@@ -328,6 +372,18 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 	
 	public ICommand getRemoveResourceKeyCommand() {
 		return removeResourceKeyCommand;
+	}
+
+	public ICommand getFindCommand() {
+		return findCommand;
+	}
+	
+	public ICommand getFindNextCommand() {
+		return findNextCommand;
+	}
+	
+	public ICommand getJumpToKeyCommand() {
+		return jumpToKeyCommand;
 	}
 	
 	/**

@@ -1,4 +1,4 @@
-package de.renber.yamlbundleeditor.export;
+package de.renber.yamlbundleeditor.export.excel;
 
 import java.awt.Composite;
 import java.io.IOException;
@@ -9,6 +9,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import de.renber.yamlbundleeditor.export.ExportException;
+import de.renber.yamlbundleeditor.export.IExportConfiguration;
+import de.renber.yamlbundleeditor.export.IExporter;
 import de.renber.yamlbundleeditor.models.BundleCollection;
 import de.renber.yamlbundleeditor.models.BundleMetaInfo;
 import de.renber.yamlbundleeditor.services.ILocalizationService;
@@ -23,15 +26,7 @@ public class ExcelExporter implements IExporter {
 	}
 
 	@Override
-	public FileExtFilter[] getSupportedFileTypes() {
-		return new FileExtFilter[] { new FileExtFilter(locService.getString("export:excel:filetype"), "*.xlsx") };
-	}
-
-	@Override
-	public void export(OutputStream stream, BundleCollection collection, String exportExtension) throws ExportException {
-		if (!"*.xlsx".equals(exportExtension))
-			throw new ExportException("Unsupported file type: " + exportExtension);
-
+	public void export(OutputStream stream, BundleCollection collection, IExportConfiguration configuration) throws ExportException {
 		try (XSSFWorkbook workBook = new XSSFWorkbook()) {
 			XSSFSheet sheet = workBook.createSheet();
 
@@ -55,7 +50,26 @@ public class ExcelExporter implements IExporter {
 	}
 
 	@Override
-	public Composite getConfigurationComposite() {
+	public IExportConfiguration getDefaultConfiguration() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Composite getConfigurationComposite(BundleCollection collection, IExportConfiguration configuration) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String serializeConfiguration(IExportConfiguration configuration) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IExportConfiguration deserializeConfiguration(String serializedString) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
