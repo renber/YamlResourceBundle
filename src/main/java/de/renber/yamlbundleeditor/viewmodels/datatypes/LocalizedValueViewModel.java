@@ -3,7 +3,7 @@ package de.renber.yamlbundleeditor.viewmodels.datatypes;
 import de.renber.databinding.viewmodels.ViewModelBase;
 import de.renber.quiterables.QuIterables;
 import de.renber.yamlbundleeditor.models.LocalizedValue;
-import de.renber.yamlbundleeditor.redoundo.Undoable;
+import de.renber.yamlbundleeditor.redoundo.AutoUndoable;
 import de.renber.yamlbundleeditor.services.IUndoSupport;
 
 /**
@@ -35,7 +35,7 @@ public class LocalizedValueViewModel extends DataViewModelBase<LocalizedValue> {
 		return bundle.getFriendlyText();
 	}
 	
-	@Undoable
+	@AutoUndoable
 	public Object getValue() {
 		return model.value;
 	}

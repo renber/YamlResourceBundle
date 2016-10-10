@@ -118,7 +118,7 @@ public class BundleMetaEditorView extends Composite {
 		
 		GridData gd_table = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 2);
 		gd_table.widthHint = 237;
-		tableComposite.setLayoutData(gd_table);
+		tableComposite.setLayoutData(gd_table);		
 		
 		metaTableViewer = new TableViewer(tableComposite, SWT.FULL_SELECTION);		
 		Table table = metaTableViewer.getTable();

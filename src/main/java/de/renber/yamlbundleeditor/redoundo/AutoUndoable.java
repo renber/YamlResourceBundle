@@ -7,11 +7,12 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation to mark a property of a ViewModel for
- * undo/redo support
+ * automatic undo/redo support
+ * Has to be attached to the property getter
  * @author renber
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD) //on class level
-public @interface Undoable {
+@Target(ElementType.METHOD)
+public @interface AutoUndoable {
 	
 }

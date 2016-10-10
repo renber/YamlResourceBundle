@@ -12,6 +12,13 @@ import de.renber.yamlbundleeditor.services.IUndoSupport;
  */
 public class WindowedViewModelBase extends UndoableViewModelBase {
 
+	/**
+	 * Instantiates a WindowedViewModelBase without UndoSupport
+	 */
+	public WindowedViewModelBase() {
+		this(null);
+	}
+	
 	public WindowedViewModelBase(IUndoSupport undoSupport) {
 		super(undoSupport); 
 	}

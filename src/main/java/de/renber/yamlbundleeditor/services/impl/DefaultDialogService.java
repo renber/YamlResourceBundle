@@ -13,10 +13,14 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import de.renber.databinding.context.beans.BeansDataContext;
 import de.renber.quiterables.QuIterables;
 import de.renber.yamlbundleeditor.Starter;
 import de.renber.yamlbundleeditor.services.IDialogService;
 import de.renber.yamlbundleeditor.services.ILocalizationService;
+import de.renber.yamlbundleeditor.viewmodels.ExportViewModel;
+import de.renber.yamlbundleeditor.viewmodels.datatypes.BundleCollectionViewModel;
+import de.renber.yamlbundleeditor.views.ExportView;
 
 public class DefaultDialogService implements IDialogService {
 	
@@ -115,4 +119,9 @@ public class DefaultDialogService implements IDialogService {
 		return false;
 	}
 	
+	public void showExportDialog(BundleCollectionViewModel forCollection) {
+		ExportViewModel vm = new ExportViewModel(forCollection, loc, this);
+		ExportView view = new ExportView(getParent(), SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM, loc, new BeansDataContext(vm));
+		view.setVisible(true);
+	}
 }

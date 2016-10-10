@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 
 import de.renber.databinding.viewmodels.ViewModelBase;
 import de.renber.yamlbundleeditor.redoundo.PropertyChangeAction;
-import de.renber.yamlbundleeditor.redoundo.Undoable;
+import de.renber.yamlbundleeditor.redoundo.AutoUndoable;
 import de.renber.yamlbundleeditor.services.IUndoSupport;
 
 public class UndoableViewModelBase extends ViewModelBase {
@@ -33,7 +33,7 @@ private IUndoSupport undoSupport;
     				Method getter = evt.getSource().getClass().getMethod(getterName);
     				// check if the getter has bee marked for undo support
     				
-    				if (getter.isAnnotationPresent(Undoable.class)) {    				
+    				if (getter.isAnnotationPresent(AutoUndoable.class)) {    				
 						undoSupport.record(new PropertyChangeAction(this, evt.getPropertyName(), evt.getOldValue(), evt.getNewValue()));
 					}				
 				} catch (NoSuchMethodException e) {

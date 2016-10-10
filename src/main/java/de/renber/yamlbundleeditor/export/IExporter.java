@@ -1,7 +1,9 @@
 package de.renber.yamlbundleeditor.export;
 
-import java.awt.Composite;
 import java.io.OutputStream;
+
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
 import de.renber.yamlbundleeditor.models.BundleCollection;
 import de.renber.yamlbundleeditor.services.impl.FileExtFilter;
@@ -9,19 +11,25 @@ import de.renber.yamlbundleeditor.services.impl.FileExtFilter;
 public interface IExporter {
 	
 	/**
-	 * Export the given BundleCollection to the stream using the file type (which has been retrieved through getSupportedFileTypes())
+	 * Return the name of this exporter
 	 */
-	void export(OutputStream stream, BundleCollection collection, IExportConfiguration configuration) throws ExportException;
+	public String getName();
+	
+	/**
+	 * Export the given BundleCollection using the given configuration)
+	 */
+	public void export(BundleCollection collection, IExportConfiguration configuration) throws ExportException;
 	
 	/**
 	 * Return a configuration for this exporter with default values
 	 */
-	IExportConfiguration getDefaultConfiguration();
+	public IExportConfiguration getDefaultConfiguration();
 	
 	/**
-	 * Return an SWT composite which allows to change the given configuration for the given collection
+	 * Return an SWT composite which allows to change the exporter's configuration
+	 * (changes have to be written directly to the passed IExportConfiguration instance)
 	 */
-	Composite getConfigurationComposite(BundleCollection collection, IExportConfiguration configuration);
+	public Control getConfigurationControl(Composite parent, BundleCollection collection, IExportConfiguration configuration);
 	
 	/**
 	 * Serialize the given configuration to a string

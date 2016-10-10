@@ -5,6 +5,8 @@ values:
     properties: {}
   dialogs:
     __value: s
+    export:
+      excel: {}
     file:
       extensions:
         descriptions: {}

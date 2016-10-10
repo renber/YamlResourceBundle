@@ -5,6 +5,7 @@ import java.io.File;
 import org.eclipse.swt.widgets.Shell;
 
 import de.renber.yamlbundleeditor.services.impl.FileExtFilter;
+import de.renber.yamlbundleeditor.viewmodels.datatypes.BundleCollectionViewModel;
 
 public interface IDialogService {
 
@@ -21,4 +22,6 @@ public interface IDialogService {
 	public String showTextPrompt(String title, String message, String defaultValue);
 	
 	public String showTextPrompt(String title, String message, String defaultValue, boolean apppendToDefault);
+	
+	public void showExportDialog(BundleCollectionViewModel forCollection);
 }

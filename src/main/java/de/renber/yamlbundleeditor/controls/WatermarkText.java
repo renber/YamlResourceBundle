@@ -1,5 +1,7 @@
 package de.renber.yamlbundleeditor.controls;
 
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
@@ -10,7 +12,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-public class WatermarkText extends Text implements PaintListener {
+public class WatermarkText extends Text implements PaintListener, FocusListener {
 
 	Color watermarkForeground;
 	String watermarkText;
@@ -21,6 +23,7 @@ public class WatermarkText extends Text implements PaintListener {
 		watermarkForeground = SWTResourceManager.getColor(75, 75, 75);
 		this.watermarkText = watermarkText;
 		
+		this.addFocusListener(this);
 		this.addPaintListener(this);
 	}
 
@@ -60,6 +63,18 @@ public class WatermarkText extends Text implements PaintListener {
 	@Override
 	protected void checkSubclass() {
 		// Disable the check that prevents subclassing of SWT components
+	}
+
+	@Override
+	public void focusGained(FocusEvent e) {
+		// --	
+	}
+
+	@Override
+	public void focusLost(FocusEvent e) {
+		// remove the selection (since otherwise it stays even when the text field did loose focus)
+		// see: http://stackoverflow.com/questions/9489578/how-to-stop-multiple-selections-with-multiple-styledtext-widgets
+		this.setSelection(0, 0);		
 	}
 
 }

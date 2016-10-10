@@ -63,6 +63,8 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 	private ICommand saveCollectionCommand;
 	private ICommand saveCollectionAsCommand;
 	
+	private ICommand exportCollectionCommand;
+	
 	private ICommand addBundleCommand;
 	private ICommand removeSelectedBundleCommand;
 	
@@ -175,6 +177,10 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 					// save
 					saveCollectionCommand.execute();
 			}
+		});
+		
+		exportCollectionCommand = new RelayCommand( () -> {
+			dialogService.showExportDialog(this);
 		});
 		
 		addBundleCommand = new RelayCommand( () -> {
@@ -356,6 +362,10 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 	
 	public ICommand getSaveCollectionAsCommand() {
 		return saveCollectionAsCommand;
+	}
+	
+	public ICommand getExportCollectionCommand() {
+		return exportCollectionCommand;
 	}
 	
 	public ICommand getAddBundleCommand() {

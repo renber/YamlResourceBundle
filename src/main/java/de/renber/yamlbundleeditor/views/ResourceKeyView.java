@@ -1,6 +1,7 @@
 package de.renber.yamlbundleeditor.views;
 
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Tree;
@@ -29,6 +30,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.wb.swt.SWTResourceManager;
@@ -41,8 +43,8 @@ import de.renber.databinding.context.IValueDataContext;
 import de.renber.databinding.converters.FuncConverter;
 import de.renber.databinding.providers.ImageLabelProvider;
 import de.renber.databinding.providers.PropertyColumnLabelProvider;
-import de.renber.databinding.templating.ContentPresenter;
-import de.renber.databinding.templating.ITemplatingCompositeFactory;
+import de.renber.databinding.templating.ItemsControl;
+import de.renber.databinding.templating.ITemplatingControlFactory;
 import de.renber.yamlbundleeditor.controls.WatermarkText;
 import de.renber.yamlbundleeditor.mvvm.ResourceKeyViewModelTreeFilter;
 import de.renber.yamlbundleeditor.services.IconProvider;
@@ -100,7 +102,7 @@ public class ResourceKeyView extends Composite {
 	private Label lblComment;
 	private Text textComment;
 	private Group grpLocalizedValues;
-	private ContentPresenter localizedValuePresenter;
+	private ItemsControl localizedValuePresenter;
 	private SashForm sashForm;
 	private ScrolledComposite scrolledComposite;
 	private Button btnAddLocalizedValues;
@@ -291,7 +293,7 @@ public class ResourceKeyView extends Composite {
 		scrolledComposite.setExpandVertical(true);
 		scrolledComposite.setExpandHorizontal(true);
 
-		localizedValuePresenter = new ContentPresenter(scrolledComposite, SWT.None);
+		localizedValuePresenter = new ItemsControl(scrolledComposite, SWT.None);
 		scrolledComposite.setContent(localizedValuePresenter);
 		scrolledComposite.setMinSize(new Point(10, 10));
 
@@ -332,15 +334,15 @@ public class ResourceKeyView extends Composite {
 
 		// set the ItemTemplate for the ContentPresenter and bind the localized
 		// values to it as item source
-		localizedValuePresenter.setItemFactory(new ITemplatingCompositeFactory() {
+		localizedValuePresenter.setItemFactory(new ITemplatingControlFactory() {
 			@Override
-			public Composite createComposite(Composite parent, IDataContext itemDataContext) {
+			public Control createControl(Composite parent, IDataContext itemDataContext) {
 				// use the langBundle of this shell
 				return new LocalizedValueView(parent, SWT.NONE, itemDataContext, langBundle);
 			}
 
 			@Override
-			public Object getLayoutData(Composite itemComposite, IDataContext itemDataContext) {
+			public Object getLayoutData(Layout parentLayout, Control itemControl, IDataContext itemDataContext) {
 				return new GridData(SWT.FILL, SWT.TOP, true, false);
 			};
 		});

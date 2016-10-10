@@ -29,6 +29,10 @@ values:
       replaceIcon: Replace Icon
     removeLanguage: Remove language
   dialogs:
+    export:
+      excel:
+        fileDescription: Microsoft Excel
+      title: Export
     file:
       extensions:
         descriptions:
@@ -37,6 +41,7 @@ values:
         title: Yaml-ResourceBundle laden
   general:
     applicationTitle: Yaml-ResourceBundle Editor
+    cancel: Cancel
     quit: Quit
   keyEditor:
     __value: Resources
@@ -74,9 +79,12 @@ values:
       undo: Undo
     file:
       __value: File
+      export: Export...
       new: New
       open: Open...
       quit: Quit
+      save: Save
+      saveAs: Save as...
   undoredo:
     keymoved: Edited path
     properties:

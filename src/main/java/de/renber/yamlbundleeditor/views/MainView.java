@@ -253,9 +253,7 @@ public class MainView extends Shell implements ViewCallback {
 	
 	protected void setupBindings() {		
 		bindingContext = new DataBindingContext();
-		
-		ComplexBind bind = new ComplexBind();
-		
+
 		// undo /redo
 		bindingContext.bindValue(WidgetProperties.text().observe(mntmUndo), dataContext.value("currentCollection").value("undoDescription").observe(), null,
 				UpdateValueStrategy.create(FuncConverter.create(String.class,				
@@ -281,13 +279,15 @@ public class MainView extends Shell implements ViewCallback {
 		commandManager.bind(mntmCollectionOpen, dataContext.value("loadCollectionCommand"));
 		commandManager.bind(mntmCollectionSave, dataContext.value("currentCollection").value("saveCollectionCommand"));
 		commandManager.bind(mntmCollectionSaveAs, dataContext.value("currentCollection").value("saveCollectionAsCommand"));
+		commandManager.bind(mntmCollectionExport, dataContext.value("currentCollection").value("exportCollectionCommand"));
 		commandManager.bind(mntmUndo, dataContext.value("currentCollection").value("undoCommand"));
-		commandManager.bind(mntmRedo, dataContext.value("currentCollection").value("redoCommand"));
+		commandManager.bind(mntmRedo, dataContext.value("currentCollection").value("redoCommand"));		
 		
 		commandManager.bind(tltmCollectionNew, dataContext.value("newCollectionCommand"));
 		commandManager.bind(tltmCollectionOpen, dataContext.value("loadCollectionCommand"));		
 		commandManager.bind(tltmCollectionSave, dataContext.value("currentCollection").value("saveCollectionCommand"));
 		commandManager.bind(tltmCollectionSaveAs, dataContext.value("currentCollection").value("saveCollectionAsCommand"));
+		commandManager.bind(tltmCollectionExport, dataContext.value("currentCollection").value("exportCollectionCommand"));
 		commandManager.bind(tltmUndo, dataContext.value("currentCollection").value("undoCommand"));
 		commandManager.bind(tltmRedo, dataContext.value("currentCollection").value("redoCommand"));		
 	}

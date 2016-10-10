@@ -10,7 +10,7 @@ import de.renber.databinding.commands.ICommand;
 import de.renber.databinding.commands.RelayCommand;
 import de.renber.databinding.viewmodels.ViewModelBase;
 import de.renber.yamlbundleeditor.models.BundleMetaInfo;
-import de.renber.yamlbundleeditor.redoundo.Undoable;
+import de.renber.yamlbundleeditor.redoundo.AutoUndoable;
 import de.renber.yamlbundleeditor.services.IDialogService;
 import de.renber.yamlbundleeditor.services.IUndoSupport;
 import de.renber.yamlbundleeditor.services.impl.FileExtFilter;
@@ -52,7 +52,7 @@ public class BundleMetaViewModel extends DataViewModelBase<BundleMetaInfo> {
 		return model.languageCode;
 	}
 	
-	@Undoable
+	@AutoUndoable
 	public String getName() {
 		return model.name;
 	}
@@ -62,7 +62,7 @@ public class BundleMetaViewModel extends DataViewModelBase<BundleMetaInfo> {
 		firePropertyChanged("friendlyText", "", getFriendlyText());
 	}
 	
-	@Undoable
+	@AutoUndoable
 	public String getLocalizedName() {
 		return model.localizedName;
 	}
@@ -72,7 +72,7 @@ public class BundleMetaViewModel extends DataViewModelBase<BundleMetaInfo> {
 		firePropertyChanged("friendlyText", "", getFriendlyText());
 	}
 	
-	@Undoable
+	@AutoUndoable
 	public String getAuthor() {
 		return model.author;
 	}
@@ -81,7 +81,7 @@ public class BundleMetaViewModel extends DataViewModelBase<BundleMetaInfo> {
 		changeProperty(model,  "author", newValue);
 	}	
 	
-	@Undoable
+	@AutoUndoable
 	public Image getIcon() {
 		return model.flagImage;
 	}

@@ -25,7 +25,7 @@ import de.renber.yamlbundleeditor.models.LocalizedValue;
 import de.renber.yamlbundleeditor.models.ResourceKey;
 import de.renber.yamlbundleeditor.mvvm.TransformedModelList;
 import de.renber.yamlbundleeditor.redoundo.KeyMoveAction;
-import de.renber.yamlbundleeditor.redoundo.Undoable;
+import de.renber.yamlbundleeditor.redoundo.AutoUndoable;
 import de.renber.yamlbundleeditor.redoundo.UndoableList;
 import de.renber.yamlbundleeditor.services.IDialogService;
 import de.renber.yamlbundleeditor.services.ILocalizationService;
@@ -239,7 +239,7 @@ public class ResourceKeyViewModel extends DataViewModelBase<ResourceKey> impleme
 		changeProperty("parent", newValue);
 	}
 
-	@Undoable
+	@AutoUndoable
 	public String getComment() {
 		return model.comment;
 	}
