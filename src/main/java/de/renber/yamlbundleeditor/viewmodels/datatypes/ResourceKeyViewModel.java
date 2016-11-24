@@ -115,7 +115,7 @@ public class ResourceKeyViewModel extends DataViewModelBase<ResourceKey> impleme
 		renameCommand = new RelayCommand(() -> {
 			
 			String oldPath = getPath();
-			String newPath = dialogService.showTextPrompt(loc.getString("keyEditor:editKey:promptTitle"), loc.getString("keyEditor:editKey:promptMessage"), oldPath, true);
+			String newPath = dialogService.showTextPrompt(loc.getString("keyEditor:renameKey:promptTitle"), loc.getString("keyEditor:renameKey:promptMessage"), oldPath, true);
 
 			if (newPath == null || oldPath.equals(newPath))
 				return;
@@ -123,7 +123,7 @@ public class ResourceKeyViewModel extends DataViewModelBase<ResourceKey> impleme
 			try {
 				move(newPath);	
 			} catch (IllegalArgumentException e) {
-				dialogService.showMessageDialog(loc.getString("dialogs:error:title"), loc.getString("keyEditor:editKey:invalidName"));
+				dialogService.showMessageDialog(loc.getString("dialogs:error:title"), loc.getString("keyEditor:renameKey:invalidName"));
 			}
 		}, () -> owningCollection != null);
 
@@ -170,7 +170,7 @@ public class ResourceKeyViewModel extends DataViewModelBase<ResourceKey> impleme
 
 			// check if only the name (and not parent) has changed
 			if (oldParts.length == newParts.length && QuIterables.query(oldParts).take(oldParts.length - 1).sequenceEquals(QuIterables.query(newParts).take(newParts.length - 1))) {
-				// nothing to do
+				// nothing to do since the path is the same
 			} else {
 				// if the path has changed, remove the key from its current
 				// parent and insert it to the new one
@@ -221,7 +221,7 @@ public class ResourceKeyViewModel extends DataViewModelBase<ResourceKey> impleme
 	}
 
 	/**
-	 * Name cannot be changed from the outside Use move() to update it
+	 * Name cannot be changed directly. Use move() to update it
 	 */
 	private void setName(String newValue) {
 		String oldPath = getPath();

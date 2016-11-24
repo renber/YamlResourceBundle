@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.observable.list.ObservableList;
 import org.eclipse.core.databinding.observable.list.WritableList;
+import org.eclipse.swt.graphics.Image;
 
 import de.renber.databinding.commands.ICommand;
 import de.renber.databinding.commands.RelayCommand;
 import de.renber.databinding.viewmodels.ViewModelBase;
-import de.renber.yamlbundleeditor.export.ExportConfigurationComposite;
 import de.renber.yamlbundleeditor.export.ExportException;
 import de.renber.yamlbundleeditor.export.IExportConfiguration;
 import de.renber.yamlbundleeditor.export.IExporter;
@@ -74,6 +74,10 @@ class ExporterViewModel extends ViewModelBase {
 		return exporterInstance.getName();
 	}
 	
+	public Image getImage() {
+		return exporterInstance.getImage();
+	}
+	
 	public BundleCollection getCollection() {
 		return bundleCollection;
 	}
@@ -87,6 +91,7 @@ class ExporterViewModel extends ViewModelBase {
 	}
 	
 	public ExporterViewModel(BundleCollection bundleCollection, IExporter exporter) {
+		this.bundleCollection = bundleCollection;
 		exporterInstance = exporter;
 		exporterConfig = exporter.getDefaultConfiguration();
 		

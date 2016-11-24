@@ -27,6 +27,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -38,6 +39,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.DumperOptions.FlowStyle;
 import org.yaml.snakeyaml.DumperOptions.ScalarStyle;
 
+import de.renber.databinding.context.beans.BeansDataContext;
 import de.renber.yamlbundleeditor.export.ExportException;
 import de.renber.yamlbundleeditor.export.IExportConfiguration;
 import de.renber.yamlbundleeditor.export.IExporter;
@@ -47,6 +49,7 @@ import de.renber.yamlbundleeditor.models.LocalizedValue;
 import de.renber.yamlbundleeditor.models.ResourceKey;
 import de.renber.yamlbundleeditor.services.IDialogService;
 import de.renber.yamlbundleeditor.services.ILocalizationService;
+import de.renber.yamlbundleeditor.services.IconProvider;
 import de.renber.yamlbundleeditor.services.impl.FileExtFilter;
 
 public class ExcelExporter implements IExporter {
@@ -59,12 +62,24 @@ public class ExcelExporter implements IExporter {
 		this.dialogService = dialogService;
 	}
 
-	public String getName() {
+	public String getName() {		
 		return "Microsoft Excel (*.xlsx)";
+	}
+	
+	public Image getImage() {
+		return IconProvider.getImage("export/excel");
 	}
 
 	@Override
 	public void export(BundleCollection collection, IExportConfiguration configuration) throws ExportException {
+		if (collection == null)
+			throw new IllegalArgumentException("The parameter collection must not be null.");
+		
+		if (configuration == null || !(configuration instanceof ExcelExportConfiguration))
+				throw new IllegalArgumentException("The parameter configuration must not be null and of type ExcelExportConfiguration.");
+		
+		ExcelExportConfiguration config = (ExcelExportConfiguration)configuration;
+		
 		File f = dialogService.showSaveFileDialog("Export as excel", new FileExtFilter("Excel-File", "*.xlsx"));
 		if (f != null) {
 			try (XSSFWorkbook workBook = new XSSFWorkbook()) {
@@ -98,7 +113,7 @@ public class ExcelExporter implements IExporter {
 
 				// write the resource keys
 				int currRow = 1;
-				Map<String, ResourceKey> keys = getFlatValues(collection.getValues(), "");
+				Map<String, ResourceKey> keys = getFlatValues(collection.getValues(), "", config.levelSeparator);
 				
 				XSSFCellStyle missingCellStyle = workBook.createCellStyle();
 				missingCellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
@@ -117,9 +132,9 @@ public class ExcelExporter implements IExporter {
 							cell.setCellValue(val.toString());
 						else
 						{
-						cell.setCellStyle(missingCellStyle);	
+							if (config.highlightMissingValues)
+								cell.setCellStyle(missingCellStyle);	
 						}
-						// todo: highlight cells with missing values
 
 						cellNo++;
 					}
@@ -145,12 +160,12 @@ public class ExcelExporter implements IExporter {
 	 * Return all ResourceKeys which have at least one localized value as a flat
 	 * list with their path
 	 */
-	private Map<String, ResourceKey> getFlatValues(List<ResourceKey> keys, String path) {
+	private Map<String, ResourceKey> getFlatValues(List<ResourceKey> keys, String path, String separator) {
 		TreeMap<String, ResourceKey> map = new TreeMap<>();
 
 		for (ResourceKey key : keys) {
 			if (key.hasChildren()) {
-				Map<String, ResourceKey> subMap = getFlatValues(key.getChildren(), path + key.name + ":");
+				Map<String, ResourceKey> subMap = getFlatValues(key.getChildren(), path + key.name + separator, separator);
 				map.putAll(subMap);
 			}
 
@@ -194,12 +209,17 @@ public class ExcelExporter implements IExporter {
 
 	@Override
 	public Control getConfigurationControl(Composite parent, BundleCollection collection, IExportConfiguration configuration) {
-		Composite cmp = new Composite(parent, SWT.None);
-		cmp.setLayout(new GridLayout());
-		Label lbl = new Label(cmp, SWT.CENTER);
-		lbl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
-		lbl.setText("This exporter does not need to be configured.");
-		return lbl;
+		if (parent == null)
+			throw new IllegalArgumentException("Parameter parent must not be null.");
+		
+		if (collection == null)
+			throw new IllegalArgumentException("Parameter collection must not be null.");
+					
+		if (configuration == null)
+			throw new IllegalArgumentException("Parameter configuration must not be null.");
+		
+		ExcelExportConfigurationViewModel vm = new ExcelExportConfigurationViewModel((ExcelExportConfiguration)configuration, collection); 
+		return new ExcelExportConfigurationComposite(parent, SWT.None, new BeansDataContext(vm));
 	}
 
 }

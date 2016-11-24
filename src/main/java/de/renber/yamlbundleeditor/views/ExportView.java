@@ -7,8 +7,15 @@ import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.jface.viewers.CellLabelProvider;
+import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ListViewer;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -26,15 +33,19 @@ import de.renber.databinding.ComplexBind;
 import de.renber.databinding.commands.CommandManager;
 import de.renber.databinding.context.IDataContext;
 import de.renber.databinding.context.beans.BeansDataContext;
+import de.renber.databinding.providers.ControllCellProvider;
 import de.renber.databinding.providers.ImageLabelProvider;
 import de.renber.databinding.templating.ContentPresenter;
 import de.renber.databinding.templating.ITemplatingControlFactory;
 import de.renber.yamlbundleeditor.export.IExportConfiguration;
 import de.renber.yamlbundleeditor.export.IExporter;
 import de.renber.yamlbundleeditor.models.BundleCollection;
+import de.renber.yamlbundleeditor.mvvm.ExporterLabelProvider;
 import de.renber.yamlbundleeditor.services.ILocalizationService;
 import de.renber.yamlbundleeditor.services.impl.ResBundleLocalizationService;
 import de.renber.yamlbundleeditor.utils.DesignTimeResourceBundle;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 
 public class ExportView extends Shell {
 
@@ -46,8 +57,9 @@ public class ExportView extends Shell {
 	protected Object result;
 	private Group grpAusgewhlterExporter;
 	private Group grpVerfgbareExportformate;
-	private Composite exportersListComposite;
-	private ListViewer exportersListViewer;
+	private Composite tableComposite;
+	private TableViewer exportersTableViewer;
+	private TableViewerColumn tableColumn;
 	private Composite composite;
 	private Button btnExport;
 	private Button btnCancel;
@@ -92,21 +104,26 @@ public class ExportView extends Shell {
 		setLayout(gridLayout);
 		
 		grpVerfgbareExportformate = new Group(this, SWT.NONE);
-		grpVerfgbareExportformate.setText("Verf\u00FCgbare Exportformate");
-		grpVerfgbareExportformate.setLayout(new GridLayout(1, false));
 		GridData gd_grpVerfgbareExportformate = new GridData(SWT.LEFT, SWT.FILL, false, true, 1, 1);
-		gd_grpVerfgbareExportformate.widthHint = 150;
+		gd_grpVerfgbareExportformate.widthHint = 200;
 		grpVerfgbareExportformate.setLayoutData(gd_grpVerfgbareExportformate);
+		grpVerfgbareExportformate.setText("Verf\u00FCgbare Exportformate");
+		grpVerfgbareExportformate.setLayout(new FillLayout());		
 		
-		exportersListComposite = new Composite(grpVerfgbareExportformate, SWT.None);
-		exportersListComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
-		exportersListComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		tableComposite = new Composite(grpVerfgbareExportformate, SWT.BORDER);
 		
-		exportersListViewer = new ListViewer(exportersListComposite);		
+		exportersTableViewer = new TableViewer(tableComposite, SWT.FULL_SELECTION);		
+		Table table = exportersTableViewer.getTable();
+		tableColumn = new TableViewerColumn(exportersTableViewer, SWT.NONE);
+		tableColumn.getColumn().setResizable(false);
 		
-
+		TableColumnLayout tableLayout = new TableColumnLayout();
+		tableComposite.setLayout(tableLayout);
+		
+		tableLayout.setColumnData(tableColumn.getColumn(), new ColumnWeightData(100));		
+		
 		grpAusgewhlterExporter = new Group(this, SWT.NONE);
-		grpAusgewhlterExporter.setText("Auswahl");
+		grpAusgewhlterExporter.setText("Exporteinstellungen");
 		grpAusgewhlterExporter.setLayout(new FillLayout(SWT.HORIZONTAL));
 		grpAusgewhlterExporter.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
@@ -118,10 +135,10 @@ public class ExportView extends Shell {
 
 		btnExport = new Button(composite, SWT.NONE);
 		btnExport.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
-		btnExport.setText("export");
+		btnExport.setText("Export");
 
 		btnCancel = new Button(composite, SWT.NONE);
-		btnCancel.setText("cancel");
+		btnCancel.setText("Cancel");
 	}
 
 	protected void setupBindings() {
@@ -130,10 +147,10 @@ public class ExportView extends Shell {
 		ComplexBind bind = new ComplexBind();
 		
 		IObservableValue obsList = dataContext.value("availableExporters").observe();		
-		bind.list(exportersListViewer, obsList, new ImageLabelProvider(null, BeanProperties.value("name")));					
+		bind.list(exportersTableViewer, obsList, new ExporterLabelProvider(BeanProperties.value("image"), BeanProperties.value("name")));
 		
 		// show the details for the selected list item		
-		IViewerObservableValue selectedExporter = ViewerProperties.singleSelection().observe(exportersListViewer);
+		IViewerObservableValue selectedExporter = ViewerProperties.singleSelection().observe(exportersTableViewer);
 		
 		// bind the selection to the ViewModel
 		bindingContext.bindValue(selectedExporter, dataContext.value("selectedExporter").observe());
@@ -142,14 +159,13 @@ public class ExportView extends Shell {
 		configurationPresenter.setItemFactory(new ITemplatingControlFactory() {
 			@Override
 			public Control createControl(Composite parent, IDataContext itemDataContext) {				
-				return ((IExporter)itemDataContext.value("exporterInstance").getValue()).getConfigurationControl(parent, (BundleCollection)itemDataContext.value("collection").getValue(), (IExportConfiguration)itemDataContext.value("configuraton").getValue());				
+				return ((IExporter)itemDataContext.value("exporterInstance").getValue()).getConfigurationControl(parent, (BundleCollection)itemDataContext.value("collection").getValue(), (IExportConfiguration)itemDataContext.value("configuration").getValue());				
 			}
 
 			@Override
 			public Object getLayoutData(Layout parentLayout, Control itemControl, IDataContext itemDataContext) {
-				return null;
-			};
-		});
+				return null;			
+		}});
 
 		configurationPresenter.setInput(selectedExporter);
 		

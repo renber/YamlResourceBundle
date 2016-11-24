@@ -2,6 +2,7 @@ package de.renber.yamlbundleeditor.export;
 
 import java.io.OutputStream;
 
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
@@ -14,6 +15,11 @@ public interface IExporter {
 	 * Return the name of this exporter
 	 */
 	public String getName();
+	
+	/**
+	 * Return an image for this exporter
+	 */
+	public Image getImage();
 	
 	/**
 	 * Export the given BundleCollection using the given configuration)

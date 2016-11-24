@@ -18,6 +18,8 @@ import org.eclipse.core.databinding.observable.list.ObservableList;
 import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.databinding.observable.masterdetail.IObservableFactory;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.databinding.observable.value.IValueChangeListener;
+import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.core.databinding.property.value.IValueProperty;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
@@ -31,6 +33,7 @@ import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.wb.swt.SWTResourceManager;
@@ -45,8 +48,10 @@ import de.renber.databinding.providers.ImageLabelProvider;
 import de.renber.databinding.providers.PropertyColumnLabelProvider;
 import de.renber.databinding.templating.ItemsControl;
 import de.renber.databinding.templating.ITemplatingControlFactory;
+import de.renber.yamlbundleeditor.controls.DropDownSelectionListener;
 import de.renber.yamlbundleeditor.controls.WatermarkText;
-import de.renber.yamlbundleeditor.mvvm.ResourceKeyViewModelTreeFilter;
+import de.renber.yamlbundleeditor.mvvm.BindableElementFilter;
+import de.renber.yamlbundleeditor.mvvm.BindableTreeFilter;
 import de.renber.yamlbundleeditor.services.IconProvider;
 import de.renber.yamlbundleeditor.utils.DesignTimeResourceBundle;
 import de.renber.yamlbundleeditor.utils.providers.ResourceKeyLabelProvider;
@@ -61,6 +66,8 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.jface.viewers.CellEditor;
@@ -126,7 +133,11 @@ public class ResourceKeyView extends Composite {
 	private ToolItem tltmFindNext;
 	private ToolItem toolItem_1;
 	private Label lblSeparator;
-
+	private Composite panelToolbar;
+	private ToolBar toolBar;
+	private ToolItem tltmFilterDropDown;
+	private MenuItem mtmOnlyShowMissing;
+	
 	/**
 	 * Create the composite.
 	 * 
@@ -159,9 +170,20 @@ public class ResourceKeyView extends Composite {
 		gl_leftComposite.horizontalSpacing = 0;
 		gl_leftComposite.verticalSpacing = 0;
 		leftComposite.setLayout(gl_leftComposite);		
+		
+		panelToolbar = new Composite(leftComposite, SWT.NONE);
+		GridLayout gl_panelToolbar = new GridLayout(2, false);
+		gl_panelToolbar.marginRight = 1;
+		gl_panelToolbar.verticalSpacing = 0;
+		gl_panelToolbar.marginWidth = 0;
+		gl_panelToolbar.marginHeight = 0;
+		gl_panelToolbar.horizontalSpacing = 0;
+		panelToolbar.setLayout(gl_panelToolbar);
+		panelToolbar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-		toolBarKeyTree = new ToolBar(leftComposite, SWT.FLAT | SWT.RIGHT);
+		toolBarKeyTree = new ToolBar(panelToolbar, SWT.FLAT | SWT.RIGHT);
 		toolBarKeyTree.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		toolBarKeyTree.setSize(221, 22);
 
 		tltmKeyAdd = new ToolItem(toolBarKeyTree, SWT.NONE);
 		tltmKeyAdd.setImage(IconProvider.getImage("key_add"));
@@ -185,7 +207,16 @@ public class ResourceKeyView extends Composite {
 		
 		tltmJumpToKey = new ToolItem(toolBarKeyTree, SWT.NONE);
 		tltmJumpToKey.setImage(IconProvider.getImage("jump_to"));
-		tltmJumpToKey.setToolTipText(langBundle.getString("keyEditor:jumpToKey:tooltip"));
+		tltmJumpToKey.setToolTipText(langBundle.getString("keyEditor:jumpToKey:tooltip"));		
+		
+		toolBar = new ToolBar(panelToolbar, SWT.FLAT | SWT.RIGHT);
+		toolBar.setBounds(0, 0, 88, 23);
+		
+		tltmFilterDropDown = new ToolItem(toolBar, SWT.CHECK);
+		tltmFilterDropDown.setImage(IconProvider.getImage("filter"));
+		DropDownSelectionListener dropDownListener = new DropDownSelectionListener(SWT.NONE, tltmFilterDropDown);
+		mtmOnlyShowMissing = dropDownListener.addMenuItem(langBundle.getString("keyEditor:filter:onlyShowMissing"), SWT.CHECK);
+		tltmFilterDropDown.addSelectionListener(dropDownListener);
 		
 		lblSeparator = new Label(leftComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
 		lblSeparator.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -193,6 +224,7 @@ public class ResourceKeyView extends Composite {
 		
 		compositeFilter = new Composite(leftComposite, SWT.NONE);
 		GridLayout gl_compositeFilter = new GridLayout(2, false);
+		gl_compositeFilter.marginRight = 1;
 		gl_compositeFilter.marginTop = 5;
 		gl_compositeFilter.marginWidth = 0;
 		gl_compositeFilter.marginHeight = 0;
@@ -299,6 +331,11 @@ public class ResourceKeyView extends Composite {
 
 		sashForm.setWeights(new int[] { 2, 3 });
 	}
+	
+	void UpdateFilterToolItemSelection() {
+		// indicate active filters on the filter dropdown button
+		tltmFilterDropDown.setSelection(mtmOnlyShowMissing.getSelection());
+	}
 
 	protected void setupBindings(ResourceBundle langBundle) {
 		bindingContext = new DataBindingContext();
@@ -308,11 +345,31 @@ public class ResourceKeyView extends Composite {
 		// bind the hierarchical resource keys to the tree
 		bind.tree(treeViewer, dataContext.value("values").observe(), new ResourceKeyObservableFactory(), new ResourceKeyTreeStructureAdvisor(), new ResourceKeyLabelProvider());
 
-		// enable the tree to be filtered (with a slight input delay)						
-		treeViewer.setFilters(new ResourceKeyViewModelTreeFilter(treeViewer, WidgetProperties.text(SWT.Modify).observeDelayed(250, txtFilterKeys)));
+		// enable the tree to be filtered (with a slight input delay for the filter text)				
+		BindableTreeFilter treeFilter = new BindableTreeFilter(treeViewer, 
+				new BindableElementFilter<ResourceKeyViewModel, String>(WidgetProperties.text(SWT.Modify).observeDelayed(250, txtFilterKeys), (item, filterValue) -> item.getPath().toLowerCase().contains(filterValue.toLowerCase()), ""),
+				new BindableElementFilter<ResourceKeyViewModel, Boolean>(WidgetProperties.selection().observe(mtmOnlyShowMissing), (item, filterValue) -> !filterValue || item.getHasMissingValues(), false));
+		treeViewer.setFilters(treeFilter);	
+		
+		// update selection indicator when filter changes
+		WidgetProperties.selection().observe(mtmOnlyShowMissing).addValueChangeListener((e) -> UpdateFilterToolItemSelection());
+		
+		tltmFilterDropDown.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				// undo auto-toggle behavior
+				// since the selection state should depend only depend on active filters
+				UpdateFilterToolItemSelection();				
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// --
+			}});
 		
 		// only enable filter text when a collection has been loaded 
-		bindingContext.bindValue(WidgetProperties.enabled().observe(txtFilterKeys), dataContext.observe(), null, UpdateValueStrategy.create(FuncConverter.create(Object.class, Boolean.class, (item) -> item != null)));
+		bindingContext.bindValue(WidgetProperties.enabled().observe(tltmFilterDropDown), dataContext.observe(), null, UpdateValueStrategy.create(FuncConverter.create(Object.class, Boolean.class, (item) -> item != null)));
+		bindingContext.bindValue(WidgetProperties.enabled().observe(txtFilterKeys), dataContext.observe(), null, UpdateValueStrategy.create(FuncConverter.create(Object.class, Boolean.class, (item) -> item != null)));		
 		bindingContext.bindValue(WidgetProperties.enabled().observe(tltmResetFilter), WidgetProperties.text(SWT.Modify).observe(txtFilterKeys), null, UpdateValueStrategy.create(FuncConverter.create(String.class, Boolean.class, (text) -> !text.isEmpty())));
 		
 		// show the details for the selected tree node

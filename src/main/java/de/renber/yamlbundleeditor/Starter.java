@@ -43,12 +43,12 @@ public class Starter {
 		display.dispose();		
 		
 		// end command manager thread
-		CommandManager.end();		
+		CommandManager.end();			
 	}
 	
 	static void runApp(Display display) {			
 		// load the localization bundle
-		ResourceBundle langBundle = new YamlResourceBundle(Starter.class.getResourceAsStream("/de/renber/yamlbundleeditor/localization/lang_de.yaml"));
+		ResourceBundle langBundle = new YamlResourceBundle(Starter.class.getClassLoader().getResourceAsStream("de/renber/yamlbundleeditor/localization/lang_de.yaml"));
 		
 		Monitor primary = display.getPrimaryMonitor();
 	    Rectangle bounds = primary.getBounds();	    
