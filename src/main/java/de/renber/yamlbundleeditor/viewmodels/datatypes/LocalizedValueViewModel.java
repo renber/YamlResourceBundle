@@ -32,6 +32,9 @@ public class LocalizedValueViewModel extends DataViewModelBase<LocalizedValue> {
 			return getLanguageCode();
 		
 		BundleMetaViewModel bundle = QuIterables.query(owningKey.getOwningCollection().getBundles()).firstOrDefault(x -> model.languageCode.equals(x.getLanguageCode()));
+		if (bundle == null) {
+			return "(" + getLanguageCode() + ")";
+		}
 		return bundle.getFriendlyText();
 	}
 	

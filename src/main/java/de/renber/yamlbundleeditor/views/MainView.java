@@ -82,6 +82,9 @@ public class MainView extends Shell implements ViewCallback {
 	private MenuItem mntmRedo;
 	private MenuItem mntmCollectionExport;
 	private MenuItem mntmNewItem;
+	private MenuItem mntmTools;
+	private Menu menu_3;
+	private MenuItem mntmCleanCollection;
 	
 	/**
 	 * Create the shell.
@@ -166,6 +169,15 @@ public class MainView extends Shell implements ViewCallback {
 		
 		mntmRedo = new MenuItem(menu_2, SWT.NONE);
 		mntmRedo.setText("redo");
+		
+		mntmTools = new MenuItem(menu, SWT.CASCADE);
+		mntmTools.setText(langBundle.getString("menuBar:tools"));
+		
+		menu_3 = new Menu(mntmTools);
+		mntmTools.setMenu(menu_3);
+		
+		mntmCleanCollection = new MenuItem(menu_3, SWT.NONE);
+		mntmCleanCollection.setText("cleanCollection");
 		
 		toolBar = new ToolBar(this, SWT.FLAT | SWT.RIGHT);
 		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -281,7 +293,9 @@ public class MainView extends Shell implements ViewCallback {
 		commandManager.bind(mntmCollectionSaveAs, dataContext.value("currentCollection").value("saveCollectionAsCommand"));
 		commandManager.bind(mntmCollectionExport, dataContext.value("currentCollection").value("exportCollectionCommand"));
 		commandManager.bind(mntmUndo, dataContext.value("currentCollection").value("undoCommand"));
-		commandManager.bind(mntmRedo, dataContext.value("currentCollection").value("redoCommand"));		
+		commandManager.bind(mntmRedo, dataContext.value("currentCollection").value("redoCommand"));
+		
+		commandManager.bind(mntmCleanCollection, dataContext.value("currentCollection").value("cleanCollectionCommand"));
 		
 		commandManager.bind(tltmCollectionNew, dataContext.value("newCollectionCommand"));
 		commandManager.bind(tltmCollectionOpen, dataContext.value("loadCollectionCommand"));		

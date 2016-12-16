@@ -76,6 +76,8 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 	
 	private ICommand jumpToKeyCommand;
 	
+	private ICommand cleanCollectionCommand;
+	
 	/**
 	 * Base name of the merged bundles
 	 */
@@ -292,6 +294,16 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 				}							
 			}			
 		});
+		
+		cleanCollectionCommand = new RelayCommand( () -> {			
+			if (dialogService.showQuestionDialog(loc.getString("tools:cleanCollection:prompt"))) {
+				
+				// TODO: add undo support (compound actions?)
+				getUndoSupport().suspend();				
+				ResourceKeyUtils.removeUntranslatedArtifacts(getValues(), getSelectedBundle().getLanguageCode());				
+				getUndoSupport().resume();
+			}			
+		}, () -> getSelectedBundle() != null);
 	}
 	
 	// --------------------------
@@ -394,6 +406,10 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 	
 	public ICommand getJumpToKeyCommand() {
 		return jumpToKeyCommand;
+	}
+	
+	public ICommand getCleanCollectionCommand() {
+		return cleanCollectionCommand;
 	}
 	
 	/**

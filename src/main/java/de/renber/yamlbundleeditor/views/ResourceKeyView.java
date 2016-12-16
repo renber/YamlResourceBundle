@@ -115,8 +115,7 @@ public class ResourceKeyView extends Composite {
 	private Button btnAddLocalizedValues;
 	private Composite rightComposite;
 	private Composite leftComposite;
-	private ToolBar toolBarKeyTree;
-	private ToolBar toolBarRight;
+	private ToolBar toolBarKeyTree;	
 	private ToolItem tltmKeyAdd;
 	private Composite composite_1;
 	private Button btnCopyPathToClipboard;
@@ -125,18 +124,13 @@ public class ResourceKeyView extends Composite {
 	private WatermarkText txtFilterKeys;
 	private Composite compositeFilter;	
 	private ToolBar toolBarFilter;
-	private ToolItem tltmResetFilter;
-	private Composite composite;
-	private ToolItem tltmJumpToKey;
-	private ToolItem toolItem;
+	private ToolItem tltmResetFilter;	
+	private ToolItem tltmJumpToKey;	
 	private ToolItem tltmFind;
-	private ToolItem tltmFindNext;
-	private ToolItem toolItem_1;
-	private Label lblSeparator;
-	private Composite panelToolbar;
-	private ToolBar toolBar;
+	private ToolItem tltmFindNext;	
+	private Label lblSeparator;		
 	private ToolItem tltmFilterDropDown;
-	private MenuItem mtmOnlyShowMissing;
+	private MenuItem mtmOnlyShowMissing;	
 	
 	/**
 	 * Create the composite.
@@ -166,22 +160,13 @@ public class ResourceKeyView extends Composite {
 
 		leftComposite = new Composite(sashForm, SWT.NONE);
 		GridLayout gl_leftComposite = new GridLayout(1, false);
+		gl_leftComposite.marginHeight = 0;
 		gl_leftComposite.marginWidth = 0;
 		gl_leftComposite.horizontalSpacing = 0;
 		gl_leftComposite.verticalSpacing = 0;
-		leftComposite.setLayout(gl_leftComposite);		
-		
-		panelToolbar = new Composite(leftComposite, SWT.NONE);
-		GridLayout gl_panelToolbar = new GridLayout(2, false);
-		gl_panelToolbar.marginRight = 1;
-		gl_panelToolbar.verticalSpacing = 0;
-		gl_panelToolbar.marginWidth = 0;
-		gl_panelToolbar.marginHeight = 0;
-		gl_panelToolbar.horizontalSpacing = 0;
-		panelToolbar.setLayout(gl_panelToolbar);
-		panelToolbar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		leftComposite.setLayout(gl_leftComposite);				
 
-		toolBarKeyTree = new ToolBar(panelToolbar, SWT.FLAT | SWT.RIGHT);
+		toolBarKeyTree = new ToolBar(leftComposite, SWT.FLAT | SWT.RIGHT);
 		toolBarKeyTree.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		toolBarKeyTree.setSize(221, 22);
 
@@ -193,7 +178,7 @@ public class ResourceKeyView extends Composite {
 		tltmKeyRemove.setImage(IconProvider.getImage("key_delete"));
 		tltmKeyRemove.setToolTipText(langBundle.getString("keyEditor:removeKey:tooltip"));
 		
-		toolItem = new ToolItem(toolBarKeyTree, SWT.SEPARATOR);
+		ToolItem toolItem = new ToolItem(toolBarKeyTree, SWT.SEPARATOR);
 		
 		tltmFind = new ToolItem(toolBarKeyTree, SWT.NONE);
 		tltmFind.setImage(IconProvider.getImage("find"));
@@ -203,20 +188,11 @@ public class ResourceKeyView extends Composite {
 		tltmFindNext.setImage(IconProvider.getImage("find_next"));
 		tltmFindNext.setToolTipText(langBundle.getString("keyEditor:findNext:tooltip"));
 		
-		toolItem_1 = new ToolItem(toolBarKeyTree, SWT.SEPARATOR);
+		ToolItem toolItem_1 = new ToolItem(toolBarKeyTree, SWT.SEPARATOR);
 		
 		tltmJumpToKey = new ToolItem(toolBarKeyTree, SWT.NONE);
 		tltmJumpToKey.setImage(IconProvider.getImage("jump_to"));
-		tltmJumpToKey.setToolTipText(langBundle.getString("keyEditor:jumpToKey:tooltip"));		
-		
-		toolBar = new ToolBar(panelToolbar, SWT.FLAT | SWT.RIGHT);
-		toolBar.setBounds(0, 0, 88, 23);
-		
-		tltmFilterDropDown = new ToolItem(toolBar, SWT.CHECK);
-		tltmFilterDropDown.setImage(IconProvider.getImage("filter"));
-		DropDownSelectionListener dropDownListener = new DropDownSelectionListener(SWT.NONE, tltmFilterDropDown);
-		mtmOnlyShowMissing = dropDownListener.addMenuItem(langBundle.getString("keyEditor:filter:onlyShowMissing"), SWT.CHECK);
-		tltmFilterDropDown.addSelectionListener(dropDownListener);
+		tltmJumpToKey.setToolTipText(langBundle.getString("keyEditor:jumpToKey:tooltip"));							
 		
 		lblSeparator = new Label(leftComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
 		lblSeparator.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -224,10 +200,9 @@ public class ResourceKeyView extends Composite {
 		
 		compositeFilter = new Composite(leftComposite, SWT.NONE);
 		GridLayout gl_compositeFilter = new GridLayout(2, false);
+		gl_compositeFilter.marginHeight = 2;
 		gl_compositeFilter.marginRight = 1;
-		gl_compositeFilter.marginTop = 5;
 		gl_compositeFilter.marginWidth = 0;
-		gl_compositeFilter.marginHeight = 0;
 		gl_compositeFilter.horizontalSpacing = 0;
 		compositeFilter.setLayout(gl_compositeFilter);
 		compositeFilter.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -243,6 +218,14 @@ public class ResourceKeyView extends Composite {
 			// reset the filter text
 			txtFilterKeys.setText("");
 		});
+		
+		ToolItem toolItem_2 = new ToolItem(toolBarFilter, SWT.SEPARATOR);
+		
+		tltmFilterDropDown = new ToolItem(toolBarFilter, SWT.CHECK);
+		tltmFilterDropDown.setImage(IconProvider.getImage("filter"));
+		DropDownSelectionListener dropDownListener = new DropDownSelectionListener(SWT.NONE, tltmFilterDropDown);
+		mtmOnlyShowMissing = dropDownListener.addMenuItem(langBundle.getString("keyEditor:filter:onlyShowMissing"), SWT.CHECK);
+		tltmFilterDropDown.addSelectionListener(dropDownListener);		
 
 		treeComposite = new Composite(leftComposite, SWT.NONE);
 		treeComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));		

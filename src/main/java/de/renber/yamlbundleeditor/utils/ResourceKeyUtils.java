@@ -9,12 +9,45 @@ import de.renber.quiterables.QuIterables;
 import de.renber.quiterables.Queriable;
 import de.renber.yamlbundleeditor.models.ResourceKey;
 import de.renber.yamlbundleeditor.viewmodels.datatypes.BundleCollectionViewModel;
+import de.renber.yamlbundleeditor.viewmodels.datatypes.LocalizedValueViewModel;
 import de.renber.yamlbundleeditor.viewmodels.datatypes.ResourceKeyViewModel;
 
 public class ResourceKeyUtils {
 
 	private ResourceKeyUtils() {
 		// --
+	}
+	
+	/**
+	 * Removes all "translated" artifacts which are present in other languages than mainLanguage but are just a copy
+	 * of the main language entry and are more than 5 characters long (skips OK etc.)
+	 * @param keys
+	 * @param mainLanguage
+	 */
+	public static void removeUntranslatedArtifacts(List<ResourceKeyViewModel> keys, String mainLanguageCode)
+	{
+		if (keys == null)
+			throw new IllegalArgumentException("Argument keys must not be null.");
+		if (mainLanguageCode == null)
+			throw new IllegalArgumentException("Argument mainLanguageCode must not be null.");
+		
+		for(ResourceKeyViewModel key: keys) {
+			LocalizedValueViewModel vm = QuIterables.query(key.getLocalizedValues()).firstOrDefault(x -> mainLanguageCode.equals(x.getLanguageCode()));
+			if (vm != null && vm.getHasValue())
+			{
+				String artifact = vm.getValue().toString();
+				if (artifact.length() > 5) {
+					
+					Queriable<LocalizedValueViewModel> toRem = QuIterables.query(key.getLocalizedValues()).where(x -> !mainLanguageCode.equals(x.getLanguageCode()) && artifact.equals(x.getValue()));
+					// remove the artifact since it is not really translated
+					toRem.forEach(x -> x.setValue(null));					
+				}
+			}
+			
+			if (key.getHasChildren()) {
+				removeUntranslatedArtifacts(key.getChildren(), mainLanguageCode);
+			}
+		}
 	}
 	
 	/**
