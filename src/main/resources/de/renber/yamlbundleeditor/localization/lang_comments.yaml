@@ -11,6 +11,7 @@ values:
       extensions:
         descriptions: {}
       loadCollection: {}
+      saveCollection: {}
   general:
     applicationTitle: The localized title of the application
   keyEditor:
@@ -28,6 +29,7 @@ values:
       redo: ''
       undo: ''
     file: {}
+    tools: {}
   undoredo:
     __value: sd
     properties:

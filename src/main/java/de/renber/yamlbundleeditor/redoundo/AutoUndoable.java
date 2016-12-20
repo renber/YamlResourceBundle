@@ -14,5 +14,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface AutoUndoable {
-	
+	/**
+	 * language key for the text which describes this action
+	 * (optional)
+	 */
+	String descriptionLangKey() default "";
 }

@@ -13,7 +13,8 @@ import de.renber.databinding.context.beans.BeansValueDataContext;
 import de.renber.databinding.converters.FuncConverter;
 import de.renber.databinding.providers.ImageLabelProvider;
 import de.renber.yamlbundleeditor.controls.BorderPainter;
-import de.renber.yamlbundleeditor.utils.DesignTimeResourceBundle;
+import de.renber.yamlbundleeditor.services.ILocalizationService;
+import de.renber.yamlbundleeditor.services.impl.DesignTimeLocalizationService;
 import de.renber.yamlbundleeditor.viewmodels.MainViewModel;
 
 import java.beans.Beans;
@@ -58,7 +59,7 @@ import org.eclipse.swt.widgets.MenuItem;
 
 public class BundleMetaEditorView extends Composite {
 
-	private ResourceBundle langBundle;
+	private ILocalizationService loc;
 	private IDataContext dataContext;
 	
 	private DataBindingContext bindingContext;
@@ -89,17 +90,17 @@ public class BundleMetaEditorView extends Composite {
 	 * @param parent
 	 * @param style
 	 */
-	public BundleMetaEditorView(Composite parent, int style, IDataContext dataContext, ResourceBundle langBundle) {
+	public BundleMetaEditorView(Composite parent, int style, IDataContext dataContext, ILocalizationService localizationService) {
 		super(parent, style);
 		
 		this.dataContext = dataContext;
 		
 		// Use the DesignTimeResourceBundle in WindowBuilder
 		if (Beans.isDesignTime()) {
-			langBundle = new DesignTimeResourceBundle();
+			localizationService = new DesignTimeLocalizationService();
 		}
 		
-		createContents(langBundle);
+		createContents(localizationService);
 		
 		if (!Beans.isDesignTime())
 			setupBindings();
@@ -108,7 +109,7 @@ public class BundleMetaEditorView extends Composite {
 	/**
 	 * Create contents of the composite
 	 */
-	protected void createContents(ResourceBundle langBundle) {
+	protected void createContents(ILocalizationService loc) {
 		GridLayout gridLayout = new GridLayout(2, false);
 		setLayout(gridLayout);		
 		
@@ -132,11 +133,11 @@ public class BundleMetaEditorView extends Composite {
 		
 		propertyGroup = new Group(this, SWT.NONE);
 		propertyGroup.setLayout(new GridLayout(2, false));
-		propertyGroup.setText(langBundle.getString("collectionEditor:properties"));
+		propertyGroup.setText(loc.getString("collectionEditor:properties"));
 		propertyGroup.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		
 		lblImage = new Label(propertyGroup, SWT.NONE);
-		lblImage.setText(langBundle.getString("collectionEditor:properties:icon") + ":");
+		lblImage.setText(loc.getString("collectionEditor:properties:icon") + ":");
 		
 		lblIcon = new Label(propertyGroup, SWT.NONE);
 		lblIcon.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
@@ -150,26 +151,26 @@ public class BundleMetaEditorView extends Composite {
 		mntmReplaceIcon.setText("Replace Icon");
 		
 		lblLanguagecode = new Label(propertyGroup, SWT.NONE);
-		lblLanguagecode.setText(langBundle.getString("collectionEditor:properties:languageCode") + ":");
+		lblLanguagecode.setText(loc.getString("collectionEditor:properties:languageCode") + ":");
 		
 		textLanguageCode = new Text(propertyGroup, SWT.BORDER);
 		textLanguageCode.setEditable(false);
 		
 		lblLanguage = new Label(propertyGroup, SWT.NONE);
-		lblLanguage.setText(langBundle.getString("collectionEditor:properties:name") + ":");
+		lblLanguage.setText(loc.getString("collectionEditor:properties:name") + ":");
 		
 		textName = new Text(propertyGroup, SWT.BORDER);
 		textName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		lblLocLanguage = new Label(propertyGroup, SWT.NONE);
 		lblLocLanguage.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblLocLanguage.setText(langBundle.getString("collectionEditor:properties:localizedName") + ":");
+		lblLocLanguage.setText(loc.getString("collectionEditor:properties:localizedName") + ":");
 		
 		textLocalizedName = new Text(propertyGroup, SWT.BORDER);
 		textLocalizedName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		lblAuthor = new Label(propertyGroup, SWT.NONE);
-		lblAuthor.setText(langBundle.getString("collectionEditor:properties:author") + ":");
+		lblAuthor.setText(loc.getString("collectionEditor:properties:author") + ":");
 		
 		textAuthor = new Text(propertyGroup, SWT.BORDER);
 		textAuthor.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -179,10 +180,10 @@ public class BundleMetaEditorView extends Composite {
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		btnAddLanguage = new Button(composite, SWT.NONE);
-		btnAddLanguage.setText(langBundle.getString("collectionEditor:addLanguage"));
+		btnAddLanguage.setText(loc.getString("collectionEditor:addLanguage"));
 		
 		btnRemove = new Button(composite, SWT.NONE);
-		btnRemove.setText(langBundle.getString("collectionEditor:removeLanguage"));
+		btnRemove.setText(loc.getString("collectionEditor:removeLanguage"));
 	}
 	
 	private void setupBindings() {

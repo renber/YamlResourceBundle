@@ -8,6 +8,8 @@ import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.layout.GridData;
@@ -29,8 +31,9 @@ import de.renber.databinding.converters.FuncConverter;
 import de.renber.resourcebundles.yaml.YamlResourceBundle;
 import de.renber.yamlbundleeditor.Starter;
 import de.renber.yamlbundleeditor.mvvm.FormatStringConverter;
+import de.renber.yamlbundleeditor.services.ILocalizationService;
 import de.renber.yamlbundleeditor.services.IconProvider;
-import de.renber.yamlbundleeditor.utils.DesignTimeResourceBundle;
+import de.renber.yamlbundleeditor.services.impl.DesignTimeLocalizationService;
 import de.renber.yamlbundleeditor.viewmodels.MainViewModel;
 import de.renber.yamlbundleeditor.viewmodels.ViewCallback;
 import org.eclipse.swt.widgets.Menu;
@@ -49,7 +52,7 @@ public class MainView extends Shell implements ViewCallback {
 	DataBindingContext bindingContext;
 	CommandManager commandManager;	
 	
-	ResourceBundle loc;
+	ILocalizationService loc;
 	
 	private Menu menu;
 	private MenuItem mntmFile;
@@ -85,12 +88,14 @@ public class MainView extends Shell implements ViewCallback {
 	private MenuItem mntmTools;
 	private Menu menu_3;
 	private MenuItem mntmCleanCollection;
+	private MenuItem mntmLanguage_de;
+	private MenuItem mntmLanguage_en;
 	
 	/**
 	 * Create the shell.
 	 * @param display
 	 */
-	public MainView(Display display, ResourceBundle langBundle, IDataContext dataContext) {
+	public MainView(Display display, ILocalizationService locService, IDataContext dataContext) {
 		super(display, SWT.SHELL_TRIM);
 		
 		this.dataContext = dataContext;		
@@ -98,13 +103,13 @@ public class MainView extends Shell implements ViewCallback {
 		
 		// Use the DesignTimeResourceBundle and an empty DataContext in WindowBuilder
 		if (Beans.isDesignTime()) {
-			langBundle = new DesignTimeResourceBundle();
+			locService = new DesignTimeLocalizationService();
 			dataContext = new BeansDataContext(null);
 		}
 		
-		loc = langBundle;
+		loc = locService;
 		
-		createContents(langBundle);	
+		createContents(loc);	
 		
 		if (!Beans.isDesignTime()) {
 			setupBindings();		
@@ -115,8 +120,8 @@ public class MainView extends Shell implements ViewCallback {
 	/**
 	 * Create contents of the shell.
 	 */
-	protected void createContents(ResourceBundle langBundle) {
-		setText(langBundle.getString("general:applicationTitle"));
+	protected void createContents(ILocalizationService loc) {
+		setText(loc.getString("general:applicationTitle"));
 		setSize(855, 695);
 		GridLayout gridLayout = new GridLayout(1, false);
 		gridLayout.verticalSpacing = 0;
@@ -129,37 +134,37 @@ public class MainView extends Shell implements ViewCallback {
 		setMenuBar(menu);
 		
 		mntmFile = new MenuItem(menu, SWT.CASCADE);
-		mntmFile.setText(langBundle.getString("menuBar:file"));
+		loc.localizeWidget(mntmFile, "menuBar:file");
 		
 		menu_1 = new Menu(mntmFile);
 		mntmFile.setMenu(menu_1);
 		
 		mntmCollectionNew = new MenuItem(menu_1, SWT.NONE);
-		mntmCollectionNew.setText(langBundle.getString("menuBar:file:new"));
+		loc.localizeWidget(mntmCollectionNew, "menuBar:file:new");
 		
 		mntmCollectionOpen = new MenuItem(menu_1, SWT.NONE);
-		mntmCollectionOpen.setText(langBundle.getString("menuBar:file:open"));
+		mntmCollectionOpen.setText(loc.getString("menuBar:file:open"));
 		
 		new MenuItem(menu_1, SWT.SEPARATOR);
 		
 		mntmCollectionSave = new MenuItem(menu_1, SWT.NONE);
-		mntmCollectionSave.setText(langBundle.getString("menuBar:file:save"));
+		mntmCollectionSave.setText(loc.getString("menuBar:file:save"));
 		
 		mntmCollectionSaveAs = new MenuItem(menu_1, SWT.NONE);
-		mntmCollectionSaveAs.setText(langBundle.getString("menuBar:file:saveAs"));
+		mntmCollectionSaveAs.setText(loc.getString("menuBar:file:saveAs"));
 		
 		mntmNewItem = new MenuItem(menu_1, SWT.SEPARATOR);
 		
 		mntmCollectionExport = new MenuItem(menu_1, SWT.NONE);
-		mntmCollectionExport.setText(langBundle.getString("menuBar:file:export"));
+		mntmCollectionExport.setText(loc.getString("menuBar:file:export"));
 		
 		new MenuItem(menu_1, SWT.SEPARATOR);
 		
 		mntmQuit = new MenuItem(menu_1, SWT.NONE);
-		mntmQuit.setText(langBundle.getString("menuBar:file:quit"));		
+		mntmQuit.setText(loc.getString("menuBar:file:quit"));		
 		
 		mntmEdit = new MenuItem(menu, SWT.CASCADE);
-		mntmEdit.setText(langBundle.getString("menuBar:edit"));
+		mntmEdit.setText(loc.getString("menuBar:edit"));
 		
 		menu_2 = new Menu(mntmEdit);
 		mntmEdit.setMenu(menu_2);
@@ -171,13 +176,35 @@ public class MainView extends Shell implements ViewCallback {
 		mntmRedo.setText("redo");
 		
 		mntmTools = new MenuItem(menu, SWT.CASCADE);
-		mntmTools.setText(langBundle.getString("menuBar:tools"));
+		mntmTools.setText(loc.getString("menuBar:tools"));
 		
 		menu_3 = new Menu(mntmTools);
 		mntmTools.setMenu(menu_3);
 		
 		mntmCleanCollection = new MenuItem(menu_3, SWT.NONE);
-		mntmCleanCollection.setText("cleanCollection");
+		mntmCleanCollection.setText(loc.getString("menuBar:tools:cleanUntranslated"));
+		
+		new MenuItem(menu_3, SWT.SEPARATOR);
+		
+		MenuItem mntmLanguage = new MenuItem(menu_3, SWT.CASCADE);
+		mntmLanguage.setText("Language");
+		
+		Menu menu_4 = new Menu(mntmLanguage);
+		mntmLanguage.setMenu(menu_4);
+		
+		mntmLanguage_de = new MenuItem(menu_4, SWT.NONE);
+		mntmLanguage_de.setText("Deutsch");
+		mntmLanguage_de.addSelectionListener(new SelectionAdapter() {
+		      public void widgetSelected(SelectionEvent event) {
+		    	  loc.changeLanguage("de");
+		        }});
+		
+		mntmLanguage_en = new MenuItem(menu_4, SWT.NONE);
+		mntmLanguage_en.setText("English");
+		mntmLanguage_en.addSelectionListener(new SelectionAdapter() {
+		      public void widgetSelected(SelectionEvent event) {
+		    	  loc.changeLanguage("en");
+		        }});
 		
 		toolBar = new ToolBar(this, SWT.FLAT | SWT.RIGHT);
 		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -218,7 +245,7 @@ public class MainView extends Shell implements ViewCallback {
 		tltmCollectionExport.setImage(IconProvider.getImage("collection_export"));
 		
 		groupCollectionInfo = new Group(mainContentComposite, SWT.NONE);
-		groupCollectionInfo.setText(langBundle.getString("collectionEditor"));
+		groupCollectionInfo.setText(loc.getString("collectionEditor"));
 		GridLayout gl_groupCollectionInfo = new GridLayout(1, false);
 		gl_groupCollectionInfo.horizontalSpacing = 0;
 		gl_groupCollectionInfo.verticalSpacing = 0;
@@ -227,11 +254,11 @@ public class MainView extends Shell implements ViewCallback {
 		groupCollectionInfo.setLayout(gl_groupCollectionInfo);
 		groupCollectionInfo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		collectionView = new CollectionView(groupCollectionInfo, SWT.NONE, dataContext.value("currentCollection"), langBundle);
+		collectionView = new CollectionView(groupCollectionInfo, SWT.NONE, dataContext.value("currentCollection"), loc);
 		collectionView.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 					
 		ExpandableComposite expComp = new ExpandableComposite(mainContentComposite, ExpandableComposite.LEFT_TEXT_CLIENT_ALIGNMENT);
-		expComp.setText(langBundle.getString("collectionEditor:availableLanguages"));		
+		expComp.setText(loc.getString("collectionEditor:availableLanguages"));		
 		expComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		groupLanguages = new Group(expComp, SWT.NONE);		
@@ -250,15 +277,15 @@ public class MainView extends Shell implements ViewCallback {
 				  }
 				 });
 		
-		BundleMetaEditorView editor = new BundleMetaEditorView(groupLanguages, SWT.NONE, dataContext.value("currentCollection"), langBundle);
+		BundleMetaEditorView editor = new BundleMetaEditorView(groupLanguages, SWT.NONE, dataContext.value("currentCollection"), loc);
 		editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
 		groupResources = new Group(mainContentComposite, SWT.NONE);
 		groupResources.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		groupResources.setText(langBundle.getString("keyEditor"));
+		groupResources.setText(loc.getString("keyEditor"));
 		groupResources.setLayout(new GridLayout(1, false));
 		
-		ResourceKeyView keyView = new ResourceKeyView(groupResources, SWT.NONE, dataContext.value("currentCollection"), langBundle);		
+		ResourceKeyView keyView = new ResourceKeyView(groupResources, SWT.NONE, dataContext.value("currentCollection"), loc);		
 		keyView.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 	}
 
