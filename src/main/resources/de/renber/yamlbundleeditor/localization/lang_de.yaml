@@ -38,7 +38,9 @@ values:
         descriptions:
           yaml: Yaml-ResourceBundle
       loadCollection:
-        title: Yaml-ResourceBundle laden
+        title: ResourceBundle laden
+      saveCollection:
+        title: ResourceBundle speichern
   general:
     applicationTitle: Yaml-ResourceBundle Editor
     cancel: Abbrechen
@@ -97,6 +99,9 @@ values:
       quit: Beenden
       save: Speichern
       saveAs: Speichern als...
+    tools:
+      __value: Tools
+      cleanUntranslated: Nicht übersetzte Werte entfernen
   undoredo:
     keymoved: Pfad bearbeitet
     properties:

@@ -9,6 +9,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 import de.renber.databinding.context.IDataContext;
+import de.renber.yamlbundleeditor.services.ILocalizationService;
+
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.SWT;
@@ -31,17 +33,17 @@ public class CollectionView extends Composite {
 	 * @param parent
 	 * @param style
 	 */
-	public CollectionView(Composite parent, int style, IDataContext dataContext, ResourceBundle langBundle) {
+	public CollectionView(Composite parent, int style, IDataContext dataContext, ILocalizationService localizationService) {
 		super(parent, style);		
 		this.dataContext = dataContext;
 		
-		createContents(langBundle);
+		createContents(localizationService);
 		
 		if (!Beans.isDesignTime())
 			setupBindings();
 	}
 	
-	protected void createContents(ResourceBundle langBundle) {
+	protected void createContents(ILocalizationService loc) {
 		setLayout(new GridLayout(2, false));
 		
 		lblBasisname = new Label(this, SWT.NONE);

@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 import de.renber.databinding.context.IDataContext;
 import de.renber.databinding.converters.FuncConverter;
 import de.renber.yamlbundleeditor.controls.WatermarkText;
+import de.renber.yamlbundleeditor.services.ILocalizationService;
 
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
@@ -36,17 +37,17 @@ public class LocalizedValueView extends Composite {
 	 * @param parent
 	 * @param style
 	 */
-	public LocalizedValueView(Composite parent, int style, IDataContext dataContext, ResourceBundle langBundle) {
+	public LocalizedValueView(Composite parent, int style, IDataContext dataContext, ILocalizationService localizationService) {
 		super(parent, style);
 
-		createContents(langBundle);
+		createContents(localizationService);
 		setupBindings(dataContext);
 	}
 
 	/**
 	 * Create contents of the composite
 	 */
-	protected void createContents(ResourceBundle langBundle) {
+	protected void createContents(ILocalizationService loc) {
 		setLayout(new GridLayout(2, false));
 		
 		lblLanguage = new Label(this, SWT.NONE);
@@ -55,7 +56,7 @@ public class LocalizedValueView extends Composite {
 		lblLanguage.setLayoutData(gd_lblLanguage);
 		lblLanguage.setText("New Label");
 		
-		textValue = new WatermarkText(this, SWT.BORDER | SWT.MULTI, langBundle.getString("keyEditor:properties:valueMissing"));
+		textValue = new WatermarkText(this, SWT.BORDER | SWT.MULTI, loc.getString("keyEditor:properties:valueMissing"));
 		textValue.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {								
 				// since this is a multi-line text field we want it to auto-grow

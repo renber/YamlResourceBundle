@@ -52,8 +52,9 @@ import de.renber.yamlbundleeditor.controls.DropDownSelectionListener;
 import de.renber.yamlbundleeditor.controls.WatermarkText;
 import de.renber.yamlbundleeditor.mvvm.BindableElementFilter;
 import de.renber.yamlbundleeditor.mvvm.BindableTreeFilter;
+import de.renber.yamlbundleeditor.services.ILocalizationService;
 import de.renber.yamlbundleeditor.services.IconProvider;
-import de.renber.yamlbundleeditor.utils.DesignTimeResourceBundle;
+import de.renber.yamlbundleeditor.services.impl.DesignTimeLocalizationService;
 import de.renber.yamlbundleeditor.utils.providers.ResourceKeyLabelProvider;
 import de.renber.yamlbundleeditor.viewmodels.datatypes.ResourceKeyViewModel;
 
@@ -138,21 +139,21 @@ public class ResourceKeyView extends Composite {
 	 * @param parent
 	 * @param style
 	 */
-	public ResourceKeyView(Composite parent, int style, IValueDataContext dataContext, ResourceBundle langBundle) {
+	public ResourceKeyView(Composite parent, int style, IValueDataContext dataContext, ILocalizationService localizationService) {
 		super(parent, style);
 
 		this.dataContext = dataContext;
 
 		if (Beans.isDesignTime())
-			langBundle = new DesignTimeResourceBundle();
+			localizationService = new DesignTimeLocalizationService();
 
-		createContents(langBundle);
+		createContents(localizationService);
 
 		if (!Beans.isDesignTime())
-			setupBindings(langBundle);
+			setupBindings(localizationService);
 	}
 
-	protected void createContents(ResourceBundle langBundle) {
+	protected void createContents(ILocalizationService loc) {
 		setLayout(new GridLayout(1, false));
 
 		sashForm = new SashForm(this, SWT.BORDER | SWT.SMOOTH);
@@ -172,27 +173,27 @@ public class ResourceKeyView extends Composite {
 
 		tltmKeyAdd = new ToolItem(toolBarKeyTree, SWT.NONE);
 		tltmKeyAdd.setImage(IconProvider.getImage("key_add"));
-		tltmKeyAdd.setToolTipText(langBundle.getString("keyEditor:addKey:tooltip"));
+		tltmKeyAdd.setToolTipText(loc.getString("keyEditor:addKey:tooltip"));
 
 		tltmKeyRemove = new ToolItem(toolBarKeyTree, SWT.NONE);
 		tltmKeyRemove.setImage(IconProvider.getImage("key_delete"));
-		tltmKeyRemove.setToolTipText(langBundle.getString("keyEditor:removeKey:tooltip"));
+		tltmKeyRemove.setToolTipText(loc.getString("keyEditor:removeKey:tooltip"));
 		
 		ToolItem toolItem = new ToolItem(toolBarKeyTree, SWT.SEPARATOR);
 		
 		tltmFind = new ToolItem(toolBarKeyTree, SWT.NONE);
 		tltmFind.setImage(IconProvider.getImage("find"));
-		tltmFind.setToolTipText(langBundle.getString("keyEditor:find:tooltip"));
+		tltmFind.setToolTipText(loc.getString("keyEditor:find:tooltip"));
 		
 		tltmFindNext = new ToolItem(toolBarKeyTree, SWT.NONE);
 		tltmFindNext.setImage(IconProvider.getImage("find_next"));
-		tltmFindNext.setToolTipText(langBundle.getString("keyEditor:findNext:tooltip"));
+		tltmFindNext.setToolTipText(loc.getString("keyEditor:findNext:tooltip"));
 		
 		ToolItem toolItem_1 = new ToolItem(toolBarKeyTree, SWT.SEPARATOR);
 		
 		tltmJumpToKey = new ToolItem(toolBarKeyTree, SWT.NONE);
 		tltmJumpToKey.setImage(IconProvider.getImage("jump_to"));
-		tltmJumpToKey.setToolTipText(langBundle.getString("keyEditor:jumpToKey:tooltip"));							
+		tltmJumpToKey.setToolTipText(loc.getString("keyEditor:jumpToKey:tooltip"));							
 		
 		lblSeparator = new Label(leftComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
 		lblSeparator.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -207,7 +208,7 @@ public class ResourceKeyView extends Composite {
 		compositeFilter.setLayout(gl_compositeFilter);
 		compositeFilter.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-		txtFilterKeys = new WatermarkText(compositeFilter, SWT.BORDER, langBundle.getString("keyEditor:filter"));		
+		txtFilterKeys = new WatermarkText(compositeFilter, SWT.BORDER, loc.getString("keyEditor:filter"));		
 		txtFilterKeys.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
 		toolBarFilter = new ToolBar(compositeFilter, SWT.FLAT | SWT.RIGHT);
@@ -224,7 +225,7 @@ public class ResourceKeyView extends Composite {
 		tltmFilterDropDown = new ToolItem(toolBarFilter, SWT.CHECK);
 		tltmFilterDropDown.setImage(IconProvider.getImage("filter"));
 		DropDownSelectionListener dropDownListener = new DropDownSelectionListener(SWT.NONE, tltmFilterDropDown);
-		mtmOnlyShowMissing = dropDownListener.addMenuItem(langBundle.getString("keyEditor:filter:onlyShowMissing"), SWT.CHECK);
+		mtmOnlyShowMissing = dropDownListener.addMenuItem(loc.getString("keyEditor:filter:onlyShowMissing"), SWT.CHECK);
 		tltmFilterDropDown.addSelectionListener(dropDownListener);		
 
 		treeComposite = new Composite(leftComposite, SWT.NONE);
@@ -247,10 +248,10 @@ public class ResourceKeyView extends Composite {
 		grpSelectedKey.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		GridLayout gl_grpSelectedKey = new GridLayout(2, false);
 		grpSelectedKey.setLayout(gl_grpSelectedKey);
-		grpSelectedKey.setText(langBundle.getString("keyEditor:properties"));
+		grpSelectedKey.setText(loc.getString("keyEditor:properties"));
 
 		lblKeyPath = new Label(grpSelectedKey, SWT.NONE);
-		lblKeyPath.setText(langBundle.getString("keyEditor:properties:keyPath") + ":");
+		lblKeyPath.setText(loc.getString("keyEditor:properties:keyPath") + ":");
 
 		composite_1 = new Composite(grpSelectedKey, SWT.NONE);
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -269,16 +270,16 @@ public class ResourceKeyView extends Composite {
 
 		btnRenameKey = new Button(composite_1, SWT.NONE);
 		btnRenameKey.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		btnRenameKey.setToolTipText(langBundle.getString("keyEditor:renameKey:tooltip"));
+		btnRenameKey.setToolTipText(loc.getString("keyEditor:renameKey:tooltip"));
 		btnRenameKey.setImage(IconProvider.getImage("rename"));
 
 		btnCopyPathToClipboard = new Button(composite_1, SWT.NONE);
 		btnCopyPathToClipboard.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		btnCopyPathToClipboard.setToolTipText(langBundle.getString("keyEditor:copyPathToClipboard:tooltip"));
+		btnCopyPathToClipboard.setToolTipText(loc.getString("keyEditor:copyPathToClipboard:tooltip"));
 		btnCopyPathToClipboard.setImage(IconProvider.getImage("copy"));
 
 		lblResourceType = new Label(grpSelectedKey, SWT.NONE);
-		lblResourceType.setText(langBundle.getString("keyEditor:properties:keyType") + ":");
+		lblResourceType.setText(loc.getString("keyEditor:properties:keyType") + ":");
 
 		combo = new Combo(grpSelectedKey, SWT.NONE);
 		combo.setEnabled(false);
@@ -287,7 +288,7 @@ public class ResourceKeyView extends Composite {
 
 		lblComment = new Label(grpSelectedKey, SWT.NONE);
 		lblComment.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
-		lblComment.setText(langBundle.getString("keyEditor:properties:comment") + ":");
+		lblComment.setText(loc.getString("keyEditor:properties:comment") + ":");
 
 		textComment = new Text(grpSelectedKey, SWT.BORDER | SWT.MULTI);
 		GridData gd_textComment = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
@@ -298,10 +299,10 @@ public class ResourceKeyView extends Composite {
 		grpLocalizedValues = new Group(grpSelectedKey, SWT.NONE);
 		grpLocalizedValues.setLayout(new GridLayout(1, false));
 		grpLocalizedValues.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
-		grpLocalizedValues.setText(langBundle.getString("keyEditor:properties:localizedValues"));
+		grpLocalizedValues.setText(loc.getString("keyEditor:properties:localizedValues"));
 
 		btnAddLocalizedValues = new Button(grpLocalizedValues, SWT.NONE);
-		btnAddLocalizedValues.setText(langBundle.getString("keyEditor:properties:addLocalizedValues"));
+		btnAddLocalizedValues.setText(loc.getString("keyEditor:properties:addLocalizedValues"));
 
 		scrolledComposite = new ScrolledComposite(grpLocalizedValues, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -320,7 +321,7 @@ public class ResourceKeyView extends Composite {
 		tltmFilterDropDown.setSelection(mtmOnlyShowMissing.getSelection());
 	}
 
-	protected void setupBindings(ResourceBundle langBundle) {
+	protected void setupBindings(ILocalizationService loc) {
 		bindingContext = new DataBindingContext();
 		ComplexBind bind = new ComplexBind();
 		commandManager = new CommandManager();
@@ -378,7 +379,7 @@ public class ResourceKeyView extends Composite {
 			@Override
 			public Control createControl(Composite parent, IDataContext itemDataContext) {
 				// use the langBundle of this shell
-				return new LocalizedValueView(parent, SWT.NONE, itemDataContext, langBundle);
+				return new LocalizedValueView(parent, SWT.NONE, itemDataContext, loc);
 			}
 
 			@Override

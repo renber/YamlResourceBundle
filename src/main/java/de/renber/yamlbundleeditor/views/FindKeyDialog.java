@@ -8,8 +8,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 
 import de.renber.yamlbundleeditor.services.ILocalizationService;
-import de.renber.yamlbundleeditor.services.impl.ResBundleLocalizationService;
-import de.renber.yamlbundleeditor.utils.DesignTimeResourceBundle;
+import de.renber.yamlbundleeditor.services.impl.DesignTimeLocalizationService;
 import de.renber.yamlbundleeditor.utils.SearchOptions;
 
 import org.eclipse.swt.layout.GridLayout;
@@ -49,7 +48,7 @@ public class FindKeyDialog extends Dialog {
 		super(parent, style);
 		
 		if (Beans.isDesignTime()) {
-			this.loc = new ResBundleLocalizationService(new DesignTimeResourceBundle());
+			this.loc = new DesignTimeLocalizationService();
 		} else		
 			this.loc = localizationService;		
 	}

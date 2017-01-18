@@ -1,5 +1,8 @@
 package de.renber.yamlbundleeditor.services;
 
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.swt.widgets.Widget;
+
 /**
  * Interface for Service which handles resolving localization resources
  * @author renber
@@ -16,5 +19,16 @@ public interface ILocalizationService {
 	 * String.format(...) with the given arguments
 	 */
 	public String getString(String key, String...arguments);
+	
+	/**
+	 * Change the application's language
+	 * @param languageCode
+	 */
+	public void changeLanguage(String languageCode);
+	
+	/**
+	 * Binds the localized value to the given Widget's text property
+	 */
+	public void localizeWidget(Widget widget, String key);
 	
 }

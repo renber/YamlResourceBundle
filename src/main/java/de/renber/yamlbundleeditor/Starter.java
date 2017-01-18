@@ -26,7 +26,7 @@ import de.renber.resourcebundles.yaml.YamlResourceBundle;
 import de.renber.yamlbundleeditor.redoundo.DefaultRedoUndoService;
 import de.renber.yamlbundleeditor.services.ILocalizationService;
 import de.renber.yamlbundleeditor.services.impl.DefaultDialogService;
-import de.renber.yamlbundleeditor.services.impl.ResBundleLocalizationService;
+import de.renber.yamlbundleeditor.services.impl.DefaultLocalizationService;
 import de.renber.yamlbundleeditor.viewmodels.MainViewModel;
 import de.renber.yamlbundleeditor.views.MainView;
 
@@ -48,13 +48,11 @@ public class Starter {
 	
 	static void runApp(Display display) {			
 		// load the localization bundle
-		ResourceBundle langBundle = new YamlResourceBundle(Starter.class.getClassLoader().getResourceAsStream("de/renber/yamlbundleeditor/localization/lang_de.yaml"));
-		
 		Monitor primary = display.getPrimaryMonitor();
 	    Rectangle bounds = primary.getBounds();	    
 		
-	    ILocalizationService localizationService = new ResBundleLocalizationService(langBundle);	    
-		mainShell = new MainView(display, langBundle, new BeansDataContext(new MainViewModel(new DefaultDialogService(localizationService), new DefaultRedoUndoService(localizationService), localizationService)));
+	    ILocalizationService locService = new DefaultLocalizationService("de");	    
+		mainShell = new MainView(display, locService, new BeansDataContext(new MainViewModel(new DefaultDialogService(locService), new DefaultRedoUndoService(locService), locService)));
 		
 		Rectangle rect = mainShell.getBounds();	    
 	    int x = bounds.x + (bounds.width - rect.width) / 2;

@@ -42,8 +42,8 @@ import de.renber.yamlbundleeditor.export.IExporter;
 import de.renber.yamlbundleeditor.models.BundleCollection;
 import de.renber.yamlbundleeditor.mvvm.ExporterLabelProvider;
 import de.renber.yamlbundleeditor.services.ILocalizationService;
-import de.renber.yamlbundleeditor.services.impl.ResBundleLocalizationService;
-import de.renber.yamlbundleeditor.utils.DesignTimeResourceBundle;
+import de.renber.yamlbundleeditor.services.impl.DesignTimeLocalizationService;
+import de.renber.yamlbundleeditor.services.impl.DefaultLocalizationService;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -82,7 +82,7 @@ public class ExportView extends Shell {
 		// Use the DesignTimeResourceBundle and an empty DataContext in
 		// WindowBuilder
 		if (Beans.isDesignTime()) {
-			localizationService = new ResBundleLocalizationService(new DesignTimeResourceBundle());
+			localizationService = new DesignTimeLocalizationService();
 			dataContext = new BeansDataContext(null);
 		}
 
