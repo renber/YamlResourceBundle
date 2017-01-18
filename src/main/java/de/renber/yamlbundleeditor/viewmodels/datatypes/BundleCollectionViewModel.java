@@ -6,10 +6,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.function.Function;
 
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.observable.list.WritableList;
@@ -37,6 +39,7 @@ import de.renber.yamlbundleeditor.services.IconProvider;
 import de.renber.yamlbundleeditor.services.impl.FileExtFilter;
 import de.renber.yamlbundleeditor.utils.ListUtils;
 import de.renber.yamlbundleeditor.utils.ResourceKeyUtils;
+import de.renber.yamlbundleeditor.utils.SearchOptions;
 
 /**
  * Represents a collection of resource bundles
@@ -54,8 +57,8 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 	
 	private boolean hasUnsavedChanges = false;
 	
-	// The last search term used by the FindCommand
-	private String currentSearchTerm;
+	// The last search term used by the FindCommand	
+	private SearchOptions currentSearchOptions = null;
 	
 	private BundleMetaViewModel selectedBundle;
 	private ResourceKeyViewModel selectedResourceKey;	
@@ -261,17 +264,18 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 		
 		findCommand = new RelayCommand( () -> {
 			
-			String searchTerm = dialogService.showTextPrompt(loc.getString("keyEditor:find:prompt:title"), loc.getString("keyEditor:find:prompt:message"), "");
+			SearchOptions searchOptions = dialogService.showFindKeyDialog(currentSearchOptions);
 			
-			if (searchTerm != null && !searchTerm.isEmpty()) {
-				currentSearchTerm = searchTerm;
-			}
+			if (searchOptions != null && !searchOptions.getSearchTerm().isEmpty()) {
+				currentSearchOptions = searchOptions;
+				gotoNextMatchingKey(true);
+			}					
 			
 		});
 		
 		findNextCommand = new RelayCommand( () -> {
-			
-		}, () -> currentSearchTerm != null);
+			gotoNextMatchingKey(false);
+		}, () -> currentSearchOptions != null);
 		
 		jumpToKeyCommand = new RelayCommand( () -> {
 			
@@ -304,6 +308,38 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 				getUndoSupport().resume();
 			}			
 		}, () -> getSelectedBundle() != null);
+	}
+	
+	/**
+	 * Select the next key which matches the current search term
+	 * @param fromStart true - Search all keys, false - Begin at the currently selected key
+	 */
+	void gotoNextMatchingKey(boolean fromStart) {
+		if (getValues().size() == 0)
+			return;
+		
+		ResourceKeyViewModel startFromKey = null;
+		
+		if (!fromStart)
+			startFromKey = getSelectedResourceKey();
+					
+		fromStart = startFromKey == null;
+		if (startFromKey == null) {
+			startFromKey = getValues().get(0);
+		}
+		
+		final ResourceKeyViewModel skipToKey = startFromKey;		
+		
+		ResourceKeyViewModel foundKey = QuIterables.query(ResourceKeyUtils.IterateChildren(getValues()))				
+			.skipWhile(x -> x != skipToKey)
+			.skip(fromStart ? 0 : 1)
+			.firstOrDefault(x -> currentSearchOptions.matches(x.getModel()));
+		
+		if (foundKey == null) {
+			dialogService.showInformationDialog(loc.getString("keyEditor:find:nokeyfound"));
+		} else
+			setSelectedResourceKey(foundKey);
+
 	}
 	
 	// --------------------------

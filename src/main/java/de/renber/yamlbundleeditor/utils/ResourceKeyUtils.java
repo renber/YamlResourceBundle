@@ -1,6 +1,9 @@
 package de.renber.yamlbundleeditor.utils;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -124,6 +127,109 @@ public class ResourceKeyUtils {
 			throw new IllegalArgumentException("path");				
 		}
 		return parts;
+	}
+	
+	/**
+	 * Return the keys in list and their children (and grandchildren, etc.) as Iterable	 
+	 */
+	public static Iterable<ResourceKeyViewModel> IterateChildren(List<ResourceKeyViewModel> list) {
+		List<Iterable<ResourceKeyViewModel>> iterables = new ArrayList<>();
+		
+		for(ResourceKeyViewModel item: list) {
+			iterables.add(new SingleElementIterable(item));
+			if (item.getHasChildren())
+				iterables.add(IterateChildren(item.getChildren()));	
+		}
+		
+		return new CompoundIterable(iterables.toArray(new Iterable[iterables.size()]));
+	}
+	
+}
+
+class SingleElementIterable<T> implements Iterable<T> {
+
+	T element;
+	
+	public SingleElementIterable(T element) {
+		this.element = element;
+	}
+	
+	@Override
+	public Iterator<T> iterator() {
+		return new SingleElementIterator(element);
+	}
+	
+	class SingleElementIterator<T> implements Iterator<T> {
+
+		T element;
+		boolean iterated = false;
+		
+		public SingleElementIterator(T element) {
+			this.element = element;
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return !iterated;
+		}
+
+		@Override
+		public T next() {
+			if (iterated)
+				throw new NoSuchElementException();
+			
+			iterated = true;
+			return element;
+		}
+		
+	}
+}
+
+class CompoundIterable<T> implements Iterable<T> {
+
+	Iterable<T>[] iterables;
+	
+	public CompoundIterable(Iterable<T>[] iterables) {
+		this.iterables = iterables;
+	}
+	
+	@Override
+	public Iterator<T> iterator() {
+		Iterator<T>[] iterators = new Iterator[iterables.length];
+		for(int i = 0; i < iterables.length; i++) {
+			iterators[i] = iterables[i].iterator();
+		}
+		
+		return new CompoundIterator<T>(iterators);
+	}
+
+	class CompoundIterator<T> implements Iterator<T>
+	{
+
+		Iterator<T>[] iterators;
+		int currentIndex = 0;
+		
+		public CompoundIterator(Iterator<T>[] iterators) {
+			this.iterators = iterators;
+		}
+		
+		@Override
+		public boolean hasNext() {
+			if (currentIndex < iterators.length) {			
+				return iterators[currentIndex].hasNext();
+			} else {
+				return false;
+			}			
+		}
+
+		@Override
+		public T next() {
+			T item = iterators[currentIndex].next();
+			if (!iterators[currentIndex].hasNext())
+				currentIndex++;
+			return item;
+		}
+		
 	}
 	
 }

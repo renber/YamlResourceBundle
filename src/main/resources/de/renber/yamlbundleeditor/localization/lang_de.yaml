@@ -42,6 +42,7 @@ values:
   general:
     applicationTitle: Yaml-ResourceBundle Editor
     cancel: Abbrechen
+    ok: OK
     quit: Beenden
   keyEditor:
     __value: Ressourcen
@@ -52,8 +53,17 @@ values:
       tooltip: Pfad in Zwischenablage kopieren
     filter: Filtern nach Pfad
     find:
+      __value: Suchen...
+      nokeyfound: Die Suche hat das Ende erreicht. Es wurde kein Treffer gefunden.
+      prompt:
+        find: Suchen
+        message: 'Suchen nach:'
+        searchNames: Namen durchsuchen
+        searchValues: Werte durchsuchen
+        title: Suche
       tooltip: Suchen
     findNext:
+      __value: Weitersuchen
       tooltip: Nächster Treffer
     jumpToKey:
       notFound: Es existiert kein Schlüssel mit diesem Pfad.

@@ -85,6 +85,8 @@ public class MainView extends Shell implements ViewCallback {
 	private MenuItem mntmTools;
 	private Menu menu_3;
 	private MenuItem mntmCleanCollection;
+	private MenuItem mntmFind;
+	private MenuItem mntmFindNext;
 	
 	/**
 	 * Create the shell.
@@ -155,7 +157,7 @@ public class MainView extends Shell implements ViewCallback {
 		
 		new MenuItem(menu_1, SWT.SEPARATOR);
 		
-		mntmQuit = new MenuItem(menu_1, SWT.NONE);
+		mntmQuit = new MenuItem(menu_1, SWT.NONE);		
 		mntmQuit.setText(langBundle.getString("menuBar:file:quit"));		
 		
 		mntmEdit = new MenuItem(menu, SWT.CASCADE);
@@ -165,10 +167,22 @@ public class MainView extends Shell implements ViewCallback {
 		mntmEdit.setMenu(menu_2);
 		
 		mntmUndo = new MenuItem(menu_2, SWT.NONE);
+		mntmUndo.setAccelerator(SWT.CTRL | 'Z');
 		mntmUndo.setText("undo");
 		
 		mntmRedo = new MenuItem(menu_2, SWT.NONE);
+		mntmUndo.setAccelerator(SWT.CTRL | 'Y');
 		mntmRedo.setText("redo");
+		
+		new MenuItem(menu_2, SWT.SEPARATOR);
+		
+		mntmFind = new MenuItem(menu_2, SWT.NONE);
+		mntmFind.setText(langBundle.getString("keyEditor:find"));
+		mntmFind.setAccelerator(SWT.CTRL + 'F');
+		
+		mntmFindNext = new MenuItem(menu_2, SWT.NONE);
+		mntmFindNext.setText(langBundle.getString("keyEditor:findNext"));
+		mntmFindNext.setAccelerator(SWT.F3);
 		
 		mntmTools = new MenuItem(menu, SWT.CASCADE);
 		mntmTools.setText(langBundle.getString("menuBar:tools"));
@@ -285,7 +299,7 @@ public class MainView extends Shell implements ViewCallback {
 						})));
 		
 		// setup commands
-		commandManager = new CommandManager();
+		commandManager = new CommandManager();		
 				
 		commandManager.bind(mntmCollectionNew, dataContext.value("newCollectionCommand"));
 		commandManager.bind(mntmCollectionOpen, dataContext.value("loadCollectionCommand"));
@@ -294,6 +308,8 @@ public class MainView extends Shell implements ViewCallback {
 		commandManager.bind(mntmCollectionExport, dataContext.value("currentCollection").value("exportCollectionCommand"));
 		commandManager.bind(mntmUndo, dataContext.value("currentCollection").value("undoCommand"));
 		commandManager.bind(mntmRedo, dataContext.value("currentCollection").value("redoCommand"));
+		commandManager.bind(mntmFind, dataContext.value("currentCollection").value("findCommand"));
+		commandManager.bind(mntmFindNext, dataContext.value("currentCollection").value("findNextCommand"));
 		
 		commandManager.bind(mntmCleanCollection, dataContext.value("currentCollection").value("cleanCollectionCommand"));
 		

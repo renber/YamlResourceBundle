@@ -42,6 +42,7 @@ values:
   general:
     applicationTitle: Yaml-ResourceBundle Editor
     cancel: Cancel
+    ok: OK
     quit: Quit
   keyEditor:
     __value: Resources
@@ -51,8 +52,17 @@ values:
       tooltip: Copy path to clipboard
     filter: Filter by path
     find:
+      __value: Find...
+      nokeyfound: Search has reached the end. No more matches found.
+      prompt:
+        find: Find
+        message: 'Find:'
+        searchNames: Search in names
+        searchValues: Search in values
+        title: Find
       tooltip: Find
     findNext:
+      __value: Find next
       tooltip: Next result
     jumpToKey:
       notFound: No key with this path exists.

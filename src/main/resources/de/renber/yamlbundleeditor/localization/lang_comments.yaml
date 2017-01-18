@@ -16,7 +16,8 @@ values:
   keyEditor:
     addKey: {}
     copyPathToClipboard: {}
-    find: {}
+    find:
+      prompt: {}
     findNext: {}
     jumpToKey:
       prompt: {}

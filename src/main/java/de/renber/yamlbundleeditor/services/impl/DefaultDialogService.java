@@ -18,9 +18,11 @@ import de.renber.quiterables.QuIterables;
 import de.renber.yamlbundleeditor.Starter;
 import de.renber.yamlbundleeditor.services.IDialogService;
 import de.renber.yamlbundleeditor.services.ILocalizationService;
+import de.renber.yamlbundleeditor.utils.SearchOptions;
 import de.renber.yamlbundleeditor.viewmodels.ExportViewModel;
 import de.renber.yamlbundleeditor.viewmodels.datatypes.BundleCollectionViewModel;
 import de.renber.yamlbundleeditor.views.ExportView;
+import de.renber.yamlbundleeditor.views.FindKeyDialog;
 
 public class DefaultDialogService implements IDialogService {
 	
@@ -97,6 +99,13 @@ public class DefaultDialogService implements IDialogService {
 			return dialog.getValue();
 		} else
 			return null;
+	}
+	
+	@Override
+	public SearchOptions showFindKeyDialog(SearchOptions defaultOptions)
+	{
+		FindKeyDialog dialog = new FindKeyDialog(getParent(), SWT.DIALOG_TRIM, loc);
+		return dialog.open(defaultOptions);
 	}
 	
 	/**
