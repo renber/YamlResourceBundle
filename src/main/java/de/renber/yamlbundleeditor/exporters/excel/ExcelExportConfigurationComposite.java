@@ -1,4 +1,4 @@
-package de.renber.yamlbundleeditor.export.excel;
+package de.renber.yamlbundleeditor.exporters.excel;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;

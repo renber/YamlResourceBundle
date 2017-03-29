@@ -1,4 +1,4 @@
-package de.renber.yamlbundleeditor.export;
+package de.renber.yamlbundleeditor.exporters;
 
 import java.io.OutputStream;
 
@@ -24,7 +24,7 @@ public interface IExporter {
 	/**
 	 * Export the given BundleCollection using the given configuration)
 	 */
-	public void export(BundleCollection collection, IExportConfiguration configuration) throws ExportException;
+	public void doExport(BundleCollection collection, IExportConfiguration configuration) throws ExportException;
 	
 	/**
 	 * Return a configuration for this exporter with default values

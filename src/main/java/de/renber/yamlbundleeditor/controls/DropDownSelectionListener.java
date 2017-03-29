@@ -42,4 +42,11 @@ public class DropDownSelectionListener extends SelectionAdapter {
 			menu.setVisible(true);
 		}
 	}
+	
+	/**
+	 * Returns the Menu instance used as the dropdown menu
+	 */
+	public Menu getMenu() {
+		return menu;
+	}
 }

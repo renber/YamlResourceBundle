@@ -10,10 +10,10 @@ import org.eclipse.swt.graphics.Image;
 import de.renber.databinding.commands.ICommand;
 import de.renber.databinding.commands.RelayCommand;
 import de.renber.databinding.viewmodels.ViewModelBase;
-import de.renber.yamlbundleeditor.export.ExportException;
-import de.renber.yamlbundleeditor.export.IExportConfiguration;
-import de.renber.yamlbundleeditor.export.IExporter;
-import de.renber.yamlbundleeditor.export.excel.ExcelExporter;
+import de.renber.yamlbundleeditor.exporters.ExportException;
+import de.renber.yamlbundleeditor.exporters.IExportConfiguration;
+import de.renber.yamlbundleeditor.exporters.IExporter;
+import de.renber.yamlbundleeditor.exporters.excel.ExcelExporter;
 import de.renber.yamlbundleeditor.models.BundleCollection;
 import de.renber.yamlbundleeditor.services.IDialogService;
 import de.renber.yamlbundleeditor.services.ILocalizationService;
@@ -97,7 +97,7 @@ class ExporterViewModel extends ViewModelBase {
 		
 		exportCommand = new RelayCommand( () -> {
 			try {
-				exporterInstance.export(bundleCollection, exporterConfig);
+				exporterInstance.doExport(bundleCollection, exporterConfig);
 			} catch (ExportException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

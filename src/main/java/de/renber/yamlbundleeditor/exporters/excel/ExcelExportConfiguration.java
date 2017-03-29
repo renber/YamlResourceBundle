@@ -1,9 +1,9 @@
-package de.renber.yamlbundleeditor.export.excel;
+package de.renber.yamlbundleeditor.exporters.excel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import de.renber.yamlbundleeditor.export.IExportConfiguration;
+import de.renber.yamlbundleeditor.exporters.IExportConfiguration;
 
 public class ExcelExportConfiguration implements IExportConfiguration {
 		

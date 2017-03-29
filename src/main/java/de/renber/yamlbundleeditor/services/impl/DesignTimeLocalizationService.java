@@ -1,5 +1,6 @@
 package de.renber.yamlbundleeditor.services.impl;
 
+import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Widget;
@@ -26,7 +27,12 @@ public class DesignTimeLocalizationService implements ILocalizationService {
 
 	@Override
 	public void localizeWidget(Widget widget, String key) {
-		WidgetProperties.text().setValue(widget, getString(key));
+		// ignored by WindowBuilder
+	}
+
+	@Override
+	public void localizeWidget(Widget widget) {
+		// ignored by WindowBuilder		
 	}
 
 }

@@ -377,7 +377,7 @@ public class ResourceKeyView extends Composite {
 		// values to it as item source
 		localizedValuePresenter.setItemFactory(new ITemplatingControlFactory() {
 			@Override
-			public Control createControl(Composite parent, IDataContext itemDataContext) {
+			public Control create(Composite parent, IDataContext itemDataContext) {
 				// use the langBundle of this shell
 				return new LocalizedValueView(parent, SWT.NONE, itemDataContext, loc);
 			}

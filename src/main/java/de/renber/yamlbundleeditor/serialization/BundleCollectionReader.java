@@ -31,8 +31,7 @@ public class BundleCollectionReader {
 		// retrieve all Bundles from the given stream
 		List<Bundle> bundles = new ArrayList<Bundle>();		
 		for(InputStream inStream: bundleStreams) {
-			Bundle bundle = bundleReader.read(inStream);
-						
+			Bundle bundle = bundleReader.read(inStream);			
 			bundles.add(bundle);			
 		}		
 		

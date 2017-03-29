@@ -39,9 +39,12 @@ public class MainViewModel extends WindowedViewModelBase {
 	private IDialogService dialogService;
 	private ILocalizationService loc;
 
+	private ImportViewModel importViewModel;
+	
 	// Commands
 	ICommand newCollectionCommand;
 	ICommand loadCollectionCommand;
+	ICommand closeCollectionCommand;
 
 	// Constructor
 	public MainViewModel(IDialogService dialogService, IUndoSupport undoSupport, ILocalizationService localizationService) {
@@ -53,7 +56,8 @@ public class MainViewModel extends WindowedViewModelBase {
 			throw new IllegalArgumentException("The parameter langBundle must not be null.");
 
 		this.dialogService = dialogService;
-		this.loc = localizationService;
+		this.loc = localizationService;				
+		this.importViewModel = new ImportViewModel(this, localizationService, dialogService);
 		
 		createCommands();
 	}
@@ -85,7 +89,9 @@ public class MainViewModel extends WindowedViewModelBase {
 								String fname = path.getFileName().toString();
 								if (fname.startsWith(basename + "_") && (fname.endsWith(".yaml") || fname.endsWith(".yml"))) {
 									try (FileInputStream stream = new FileInputStream(path.toString())) {
-										bundleList.add(bundleReader.read(stream));
+										Bundle b = bundleReader.read(stream);
+										b.getMeta().filePath = path.toString();
+										bundleList.add(b);
 									}
 								}
 							}
@@ -103,7 +109,33 @@ public class MainViewModel extends WindowedViewModelBase {
 						
 						getUndoSupport().flush();
 					}
-				});				
+				});		
+		
+		closeCollectionCommand = new RelayCommand( () -> {
+			// if the current collection has unsaved changes,
+			// aks the user whether he wants to save before closing
+			if (getCurrentCollection().getHasUnsavedChanges()) {
+				if (dialogService.showQuestionDialog("general:saveChangesBeforeClose")) {
+					getCurrentCollection().getSaveCollectionCommand().execute();
+				} else
+					return;
+			}
+			
+			setCurrentCollection((BundleCollectionViewModel)null);
+		}, () -> getCurrentCollection() != null);
+	}
+	
+	public void checkOpenedFilesChanged() {
+		if (currentCollection != null) {
+			if (currentCollection.checkBundleFilesChanged()) {
+				if (dialogService.showQuestionDialog(loc.getString("general:filesChangedOutside"))) {
+					// TODO: reload the collection
+				} else {
+					// ignore the current changes
+					currentCollection.updateFileTrackIds();
+				}
+			}
+		}
 	}
 
 	// --------------------------
@@ -114,8 +146,17 @@ public class MainViewModel extends WindowedViewModelBase {
 		return currentCollection;
 	}
 
-	private void setCurrentCollection(BundleCollectionViewModel newValue) {
+	public void setCurrentCollection(BundleCollectionViewModel newValue) {
 		changeProperty("currentCollection", newValue);
+	}
+	
+	public void setCurrentCollection(BundleCollection newValue) {
+		BundleCollectionViewModel vm = new BundleCollectionViewModel(newValue, "", dialogService, getUndoSupport(), loc);
+		setCurrentCollection(vm);
+	}
+	
+	public ImportViewModel getImportViewModel() {
+		return importViewModel;
 	}
 	
 	// ---------------
@@ -136,4 +177,10 @@ public class MainViewModel extends WindowedViewModelBase {
 		return loadCollectionCommand;
 	}	
 	
+	/**
+	 * The command to close the currently open collection
+	 */
+	public ICommand getCloseCollectionCommand() {
+		return closeCollectionCommand;
+	}
 }

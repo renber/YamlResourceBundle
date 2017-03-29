@@ -14,10 +14,14 @@ import de.renber.yamlbundleeditor.redoundo.AutoUndoable;
 import de.renber.yamlbundleeditor.services.IDialogService;
 import de.renber.yamlbundleeditor.services.IUndoSupport;
 import de.renber.yamlbundleeditor.services.impl.FileExtFilter;
+import de.renber.yamlbundleeditor.utils.FileRevisionId;
 
-public class BundleMetaViewModel extends DataViewModelBase<BundleMetaInfo> {
-
+public class BundleMetaViewModel extends DataViewModelBase<BundleMetaInfo> {	
+	
 	IDialogService dialogService;
+	
+	// revision id to track outside changes
+	FileRevisionId revisionId;
 	
 	ICommand replaceIconCommand;
 	
@@ -30,7 +34,7 @@ public class BundleMetaViewModel extends DataViewModelBase<BundleMetaInfo> {
 	
 	private void createCommands() {
 		replaceIconCommand = new RelayCommand( () -> {			
-			File f = dialogService.showOpenFileDialog("dialogs:file:loadImage:title", new FileExtFilter("dialogs:extensions:descriptions:images", "*.png;"));
+			File f = dialogService.showOpenFileDialog("dialogs:file:loadImage:title", new FileExtFilter("dialogs:file:extensions:descriptions:images", "*.png;"));
 			
 			if (f != null) {
 				ImageLoader imgLoader = new ImageLoader();
@@ -95,6 +99,14 @@ public class BundleMetaViewModel extends DataViewModelBase<BundleMetaInfo> {
 			return getName() + " (" + getLanguageCode() + ")";
 		
 		return getName();
+	}
+	
+	public void setRevisionId(FileRevisionId revisionId) {
+		this.revisionId = revisionId;
+	}
+	
+	public FileRevisionId getRevisionId() {
+		return revisionId;
 	}
 	
 	// ---------------

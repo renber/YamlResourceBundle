@@ -29,11 +29,9 @@ public class WindowedViewModelBase extends UndoableViewModelBase {
 		this.viewCallback = viewCallback;
 	}
 	
-	public Shell getBoundView() {
-		if (viewCallback == null)
-			return null;
-		
-		return viewCallback.viewObjectRequested();
+	public void requestViewClose() {
+		if (viewCallback != null)		
+			viewCallback.requestClose();
 	}
 	
 }

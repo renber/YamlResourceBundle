@@ -17,7 +17,11 @@ meta:
 values:
   collectionEditor:
     __value: Bundle-Sammlung
-    addLanguage: Sprache hinzufügen
+    addLanguage:
+      __value: Sprache hinzufügen
+      prompt:
+        message: 'Code der Sprache (Zwei Buchstaben, ISO 639-1):'
+        title: Sprache hinzufügen
     availableLanguages: Enthaltene Sprachen
     properties:
       __value: Eigenschaften
@@ -36,24 +40,35 @@ values:
     file:
       extensions:
         descriptions:
+          images: Bilddateien
           yaml: Yaml-ResourceBundle
       loadCollection:
         title: ResourceBundle laden
       saveCollection:
         title: ResourceBundle speichern
+    information:
+      title: Information
   general:
     applicationTitle: Yaml-ResourceBundle Editor
     cancel: Abbrechen
+    filesChangedOutside: "Eine oder mehrere Dateien der aktuellen Bundle-Sammlung\
+      \ wurden außerhalb des Editors verändert.\r\nMöchten Sie die Sammlung neu laden?\
+      \ Dabei werden ungespeicherte Änderungen verworfen."
     ok: OK
     quit: Beenden
   keyEditor:
     __value: Ressourcen
     addKey:
       invalidName: Der eingegebene Pfad ist nicht zulässig für einen Ressourcenschlüssel.
+      prompt:
+        message: 'Pfad:'
+        title: Neuen Schlüssel anlegen
       tooltip: Schlüssel hinzufügen
     copyPathToClipboard:
       tooltip: Pfad in Zwischenablage kopieren
-    filter: Filtern nach Pfad
+    filter:
+      __value: Filtern nach Pfad
+      onlyshowmissing: Nur Einträge mit fehlenden Werten anzeigen
     find:
       __value: Suchen...
       nokeyfound: Die Suche hat das Ende erreicht. Es wurde kein Treffer gefunden.
@@ -93,7 +108,9 @@ values:
       undo: Rückgängig
     file:
       __value: Datei
+      close: Schließen
       export: Exportieren...
+      import: Importieren
       new: Neu
       open: Öffnen...
       quit: Beenden

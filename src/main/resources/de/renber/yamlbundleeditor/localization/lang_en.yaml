@@ -17,7 +17,11 @@ meta:
 values:
   collectionEditor:
     __value: Bundle collection
-    addLanguage: Add language
+    addLanguage:
+      __value: Add language
+      prompt:
+        message: 'Language two-letter code (ISO 639-1):'
+        title: Add language
     availableLanguages: Available languages
     properties:
       __value: Properties
@@ -36,23 +40,35 @@ values:
     file:
       extensions:
         descriptions:
+          images: Image files
           yaml: Yaml resource bundle
       loadCollection:
         title: Load resource bundle
       saveCollection:
         title: Save resource bundle
+    information:
+      title: Information
   general:
     applicationTitle: Yaml-ResourceBundle Editor
     cancel: Cancel
+    filesChangedOutside: "One or more files of this bundle collection have been changed\
+      \ outside the editor.\r\nWould you like to reload the collection and loose unsaved\
+      \ changes?"
     ok: OK
     quit: Quit
   keyEditor:
     __value: Resources
     addKey:
       invalidName: The entered path is invalid for a resource key.
+      prompt:
+        message: 'Path:'
+        title: Add new key
+      tooltip: Add key
     copyPathToClipboard:
       tooltip: Copy path to clipboard
-    filter: Filter by path
+    filter:
+      __value: Filter by path
+      onlyshowmissing: Only show keys with missing values
     find:
       __value: Find...
       nokeyfound: Search has reached the end. No more matches found.
@@ -81,6 +97,7 @@ values:
       localizedValues: Localized value
       valueMissing: <value missing>
     removeKey:
+      confirmation: Do you really want to delete this key and all its children?
       tooltip: Remove key
     renameKey:
       tooltip: Rename / Move
@@ -91,7 +108,9 @@ values:
       undo: Undo
     file:
       __value: File
+      close: Close
       export: Export...
+      import: Import
       new: New
       open: Open...
       quit: Quit

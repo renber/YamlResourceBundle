@@ -31,4 +31,9 @@ public interface ILocalizationService {
 	 */
 	public void localizeWidget(Widget widget, String key);
 	
+	/**
+	 * Localizes the given widget using the current widget text as key
+	 */
+	public void localizeWidget(Widget widget);
+	
 }

@@ -1,4 +1,4 @@
-package de.renber.yamlbundleeditor.export.excel;
+package de.renber.yamlbundleeditor.exporters.excel;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,9 +40,9 @@ import org.yaml.snakeyaml.DumperOptions.FlowStyle;
 import org.yaml.snakeyaml.DumperOptions.ScalarStyle;
 
 import de.renber.databinding.context.beans.BeansDataContext;
-import de.renber.yamlbundleeditor.export.ExportException;
-import de.renber.yamlbundleeditor.export.IExportConfiguration;
-import de.renber.yamlbundleeditor.export.IExporter;
+import de.renber.yamlbundleeditor.exporters.ExportException;
+import de.renber.yamlbundleeditor.exporters.IExportConfiguration;
+import de.renber.yamlbundleeditor.exporters.IExporter;
 import de.renber.yamlbundleeditor.models.BundleCollection;
 import de.renber.yamlbundleeditor.models.BundleMetaInfo;
 import de.renber.yamlbundleeditor.models.LocalizedValue;
@@ -71,7 +71,7 @@ public class ExcelExporter implements IExporter {
 	}
 
 	@Override
-	public void export(BundleCollection collection, IExportConfiguration configuration) throws ExportException {
+	public void doExport(BundleCollection collection, IExportConfiguration configuration) throws ExportException {
 		if (collection == null)
 			throw new IllegalArgumentException("The parameter collection must not be null.");
 		

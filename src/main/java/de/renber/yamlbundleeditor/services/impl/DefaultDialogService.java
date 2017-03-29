@@ -2,18 +2,26 @@ package de.renber.yamlbundleeditor.services.impl;
 
 import java.io.File;
 import java.util.ResourceBundle;
+import java.util.function.Function;
 
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import de.renber.databinding.context.IDataContext;
+import de.renber.databinding.context.IValueDataContext;
 import de.renber.databinding.context.beans.BeansDataContext;
+import de.renber.databinding.templating.ITemplatingControlFactory;
+import de.renber.databinding.viewmodels.ViewModelBase;
 import de.renber.quiterables.QuIterables;
 import de.renber.yamlbundleeditor.Starter;
 import de.renber.yamlbundleeditor.services.IDialogService;
@@ -106,6 +114,12 @@ public class DefaultDialogService implements IDialogService {
 	{
 		FindKeyDialog dialog = new FindKeyDialog(getParent(), SWT.DIALOG_TRIM, loc);
 		return dialog.open(defaultOptions);
+	}
+	
+	@Override
+	public void showDialogFor(IDataContext dataContext, ITemplatingControlFactory contentFactory) {	
+		GenericDialog dialog = new GenericDialog(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL, "DIALOG", dataContext, contentFactory);
+		dialog.open();		
 	}
 	
 	/**

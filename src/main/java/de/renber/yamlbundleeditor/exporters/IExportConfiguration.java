@@ -1,4 +1,4 @@
-package de.renber.yamlbundleeditor.export;
+package de.renber.yamlbundleeditor.exporters;
 
 /**
  * Marker interface for classes in which export configurations are stored 

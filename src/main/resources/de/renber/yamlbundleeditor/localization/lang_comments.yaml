@@ -2,6 +2,8 @@ meta:
   type: comments
 values:
   collectionEditor:
+    addLanguage:
+      prompt: {}
     properties: {}
   dialogs:
     __value: s
@@ -12,11 +14,14 @@ values:
         descriptions: {}
       loadCollection: {}
       saveCollection: {}
+    information: {}
   general:
     applicationTitle: The localized title of the application
   keyEditor:
-    addKey: {}
+    addKey:
+      prompt: {}
     copyPathToClipboard: {}
+    filter: {}
     find:
       prompt: {}
     findNext: {}

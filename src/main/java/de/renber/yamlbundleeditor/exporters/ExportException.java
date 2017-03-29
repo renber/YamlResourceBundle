@@ -1,4 +1,4 @@
-package de.renber.yamlbundleeditor.export;
+package de.renber.yamlbundleeditor.exporters;
 
 /**
  * Exception which can be thrown by an Exporter

@@ -33,12 +33,12 @@ import de.renber.databinding.ComplexBind;
 import de.renber.databinding.commands.CommandManager;
 import de.renber.databinding.context.IDataContext;
 import de.renber.databinding.context.beans.BeansDataContext;
-import de.renber.databinding.providers.ControllCellProvider;
+import de.renber.databinding.providers.ControlCellProvider;
 import de.renber.databinding.providers.ImageLabelProvider;
 import de.renber.databinding.templating.ContentPresenter;
 import de.renber.databinding.templating.ITemplatingControlFactory;
-import de.renber.yamlbundleeditor.export.IExportConfiguration;
-import de.renber.yamlbundleeditor.export.IExporter;
+import de.renber.yamlbundleeditor.exporters.IExportConfiguration;
+import de.renber.yamlbundleeditor.exporters.IExporter;
 import de.renber.yamlbundleeditor.models.BundleCollection;
 import de.renber.yamlbundleeditor.mvvm.ExporterLabelProvider;
 import de.renber.yamlbundleeditor.services.ILocalizationService;
@@ -158,7 +158,7 @@ public class ExportView extends Shell {
 		// show the configuration control for the selected exporter
 		configurationPresenter.setItemFactory(new ITemplatingControlFactory() {
 			@Override
-			public Control createControl(Composite parent, IDataContext itemDataContext) {				
+			public Control create(Composite parent, IDataContext itemDataContext) {				
 				return ((IExporter)itemDataContext.value("exporterInstance").getValue()).getConfigurationControl(parent, (BundleCollection)itemDataContext.value("collection").getValue(), (IExportConfiguration)itemDataContext.value("configuration").getValue());				
 			}
 

@@ -60,7 +60,7 @@
   	<dependency>
   		<groupId>de.renber</groupId>
   		<artifactId>QuIterables</artifactId>
-  		<version>1.0.0-SNAPSHOT</version>
+  		<version>1.0.0</version>
   	</dependency>
   	<dependency>
   		<groupId>commons-io</groupId>

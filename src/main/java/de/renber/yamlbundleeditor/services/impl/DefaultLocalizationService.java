@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Widget;
 
@@ -45,6 +46,11 @@ public class DefaultLocalizationService implements ILocalizationService {
 		LocalizedWidget lw = new LocalizedWidget(widget, key);
 		lw.update(this);
 		localizedWidgets.add(lw);
+	}
+	
+	@Override
+	public void localizeWidget(Widget widget) {
+		localizeWidget(widget, (String)WidgetProperties.text().getValue(widget));
 	}
 	
 	void updateAll() {

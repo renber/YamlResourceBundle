@@ -1,9 +1,15 @@
 package de.renber.yamlbundleeditor.services;
 
 import java.io.File;
+import java.util.function.Function;
 
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
+import de.renber.databinding.context.IDataContext;
+import de.renber.databinding.context.IValueDataContext;
+import de.renber.databinding.templating.ITemplatingControlFactory;
+import de.renber.databinding.viewmodels.ViewModelBase;
 import de.renber.yamlbundleeditor.services.impl.FileExtFilter;
 import de.renber.yamlbundleeditor.utils.SearchOptions;
 import de.renber.yamlbundleeditor.viewmodels.datatypes.BundleCollectionViewModel;
@@ -27,4 +33,6 @@ public interface IDialogService {
 	public SearchOptions showFindKeyDialog(SearchOptions defaultValues);
 	
 	public void showExportDialog(BundleCollectionViewModel forCollection);
+		
+	public void showDialogFor(IDataContext dataContext, ITemplatingControlFactory contentFactory);
 }

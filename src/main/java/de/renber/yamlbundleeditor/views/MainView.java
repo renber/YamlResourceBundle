@@ -10,8 +10,11 @@ import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -28,8 +31,11 @@ import de.renber.databinding.context.IDataContext;
 import de.renber.databinding.context.IValueDataContext;
 import de.renber.databinding.context.beans.BeansDataContext;
 import de.renber.databinding.converters.FuncConverter;
+import de.renber.databinding.templating.ITemplatingFactory;
+import de.renber.databinding.templating.MenuTemplate;
 import de.renber.resourcebundles.yaml.YamlResourceBundle;
 import de.renber.yamlbundleeditor.Starter;
+import de.renber.yamlbundleeditor.controls.DropDownSelectionListener;
 import de.renber.yamlbundleeditor.mvvm.FormatStringConverter;
 import de.renber.yamlbundleeditor.services.ILocalizationService;
 import de.renber.yamlbundleeditor.services.IconProvider;
@@ -41,11 +47,13 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
 public class MainView extends Shell implements ViewCallback {
 	IDataContext dataContext;	
@@ -70,6 +78,7 @@ public class MainView extends Shell implements ViewCallback {
 	private ToolItem tltmCollectionSaveAs;
 	private CollectionView collectionView;
 	private ToolItem toolItem_1;
+	private ToolItem tltmCollectionImport;
 	private ToolItem tltmCollectionExport;
 	private MenuItem mntmCollectionSave;
 	private MenuItem mntmCollectionNew;
@@ -83,6 +92,7 @@ public class MainView extends Shell implements ViewCallback {
 	private Menu menu_2;
 	private MenuItem mntmUndo;
 	private MenuItem mntmRedo;
+	private MenuItem mntmCollectionImport;
 	private MenuItem mntmCollectionExport;
 	private MenuItem mntmNewItem;
 	private MenuItem mntmTools;
@@ -92,6 +102,7 @@ public class MainView extends Shell implements ViewCallback {
 	private MenuItem mntmLanguage_en;
 	private MenuItem mntmFind;
 	private MenuItem mntmFindNext;
+	private MenuItem mntmCollectionClose;
 	
 	/**
 	 * Create the shell.
@@ -111,18 +122,25 @@ public class MainView extends Shell implements ViewCallback {
 		
 		loc = locService;
 		
-		createContents(loc);	
+		createContents();	
 		
 		if (!Beans.isDesignTime()) {
 			setupBindings();		
 			setupViewActions();
 		}
+		
+		this.addShellListener(new ShellAdapter() {
+			public void shellActivated(ShellEvent event) {
+				((MainViewModel)MainView.this.dataContext.getValue()).checkOpenedFilesChanged();
+				event.doit = true;
+		      }			
+		});
 	}
 
 	/**
 	 * Create contents of the shell.
 	 */
-	protected void createContents(ILocalizationService loc) {
+	protected void createContents() {
 		setText(loc.getString("general:applicationTitle"));
 		setSize(855, 695);
 		GridLayout gridLayout = new GridLayout(1, false);
@@ -136,16 +154,23 @@ public class MainView extends Shell implements ViewCallback {
 		setMenuBar(menu);
 		
 		mntmFile = new MenuItem(menu, SWT.CASCADE);
-		loc.localizeWidget(mntmFile, "menuBar:file");
+		mntmFile.setText("menuBar:file");
+		loc.localizeWidget(mntmFile);
 		
 		menu_1 = new Menu(mntmFile);
 		mntmFile.setMenu(menu_1);
 		
 		mntmCollectionNew = new MenuItem(menu_1, SWT.NONE);
-		loc.localizeWidget(mntmCollectionNew, "menuBar:file:new");
+		mntmCollectionNew.setText("menuBar:file:new");
+		loc.localizeWidget(mntmCollectionNew);
 		
 		mntmCollectionOpen = new MenuItem(menu_1, SWT.NONE);
-		mntmCollectionOpen.setText(loc.getString("menuBar:file:open"));
+		mntmCollectionOpen.setText("menuBar:file:open");
+		loc.localizeWidget(mntmCollectionOpen);		
+		
+		mntmCollectionClose = new MenuItem(menu_1, SWT.NONE);
+		mntmCollectionClose.setText("menuBar:file:close");
+		loc.localizeWidget(mntmCollectionClose);
 		
 		new MenuItem(menu_1, SWT.SEPARATOR);
 		
@@ -157,6 +182,9 @@ public class MainView extends Shell implements ViewCallback {
 		
 		mntmNewItem = new MenuItem(menu_1, SWT.SEPARATOR);
 		
+		mntmCollectionImport = new MenuItem(menu_1, SWT.CASCADE);
+		mntmCollectionImport.setText(loc.getString("menuBar:file:import"));
+		
 		mntmCollectionExport = new MenuItem(menu_1, SWT.NONE);
 		mntmCollectionExport.setText(loc.getString("menuBar:file:export"));
 		
@@ -166,7 +194,8 @@ public class MainView extends Shell implements ViewCallback {
 		mntmQuit.setText(loc.getString("menuBar:file:quit"));		
 		
 		mntmEdit = new MenuItem(menu, SWT.CASCADE);
-		mntmEdit.setText(loc.getString("menuBar:edit"));
+		mntmEdit.setText("menuBar:edit");
+		loc.localizeWidget(mntmEdit);
 		
 		menu_2 = new Menu(mntmEdit);
 		mntmEdit.setMenu(menu_2);
@@ -191,14 +220,15 @@ public class MainView extends Shell implements ViewCallback {
 		
 		mntmTools = new MenuItem(menu, SWT.CASCADE);
 		mntmTools.setText(loc.getString("menuBar:tools"));
-		
+				
 		menu_3 = new Menu(mntmTools);
 		mntmTools.setMenu(menu_3);
 		
+		/*
 		mntmCleanCollection = new MenuItem(menu_3, SWT.NONE);
 		mntmCleanCollection.setText(loc.getString("menuBar:tools:cleanUntranslated"));
 		
-		new MenuItem(menu_3, SWT.SEPARATOR);
+		new MenuItem(menu_3, SWT.SEPARATOR);*/
 		
 		MenuItem mntmLanguage = new MenuItem(menu_3, SWT.CASCADE);
 		mntmLanguage.setText("Language");
@@ -255,6 +285,9 @@ public class MainView extends Shell implements ViewCallback {
 		toolItem_2 = new ToolItem(toolBar, SWT.SEPARATOR);
 		toolItem_2.setText("");
 		
+		tltmCollectionImport = new ToolItem(toolBar, SWT.NONE);
+		tltmCollectionImport.setImage(IconProvider.getImage("collection_import_dropdown"));		
+		
 		tltmCollectionExport = new ToolItem(toolBar, SWT.NONE);
 		tltmCollectionExport.setImage(IconProvider.getImage("collection_export"));
 		
@@ -272,7 +305,7 @@ public class MainView extends Shell implements ViewCallback {
 		collectionView.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 					
 		ExpandableComposite expComp = new ExpandableComposite(mainContentComposite, ExpandableComposite.LEFT_TEXT_CLIENT_ALIGNMENT);
-		expComp.setText(loc.getString("collectionEditor:availableLanguages"));		
+		expComp.setText(loc.getString("collectionEditor:availableLanguages"));
 		expComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		groupLanguages = new Group(expComp, SWT.NONE);		
@@ -306,7 +339,33 @@ public class MainView extends Shell implements ViewCallback {
 	
 	protected void setupBindings() {		
 		bindingContext = new DataBindingContext();
+		commandManager = new CommandManager();		
 
+		// bind list of importers
+		ITemplatingFactory<Menu, MenuItem> importerMenuItemFactory = new ITemplatingFactory<Menu, MenuItem>() {			
+			@Override
+			public MenuItem create(Menu parent, IDataContext itemDataContext) {		
+				// create a MenuItem for this importer
+				MenuItem mItem = new MenuItem(parent, SWT.NONE);
+				mItem.setText((String)itemDataContext.value("name").getValue());
+				mItem.setImage((Image)itemDataContext.value("image").getValue());				
+				commandManager.bind(mItem, itemDataContext.value("importCommand"));				
+				return mItem;				
+			}
+		};
+		
+		Menu exportMenu = new Menu(mntmCollectionImport);
+		mntmCollectionImport.setMenu(exportMenu);
+		MenuTemplate importMenuTemplate = new MenuTemplate(exportMenu);
+		importMenuTemplate.setItemFactory(importerMenuItemFactory);
+		importMenuTemplate.setInput(dataContext.value("importViewModel").value("availableImporters").observe());
+		
+		DropDownSelectionListener importDropwDown = new DropDownSelectionListener(SWT.None, tltmCollectionImport);		
+		importMenuTemplate = new MenuTemplate(importDropwDown.getMenu());
+		importMenuTemplate.setItemFactory(importerMenuItemFactory);
+		importMenuTemplate.setInput(dataContext.value("importViewModel").value("availableImporters").observe());
+		tltmCollectionImport.addSelectionListener(importDropwDown);
+		
 		// undo /redo
 		bindingContext.bindValue(WidgetProperties.text().observe(mntmUndo), dataContext.value("currentCollection").value("undoDescription").observe(), null,
 				UpdateValueStrategy.create(FuncConverter.create(String.class,				
@@ -325,11 +384,11 @@ public class MainView extends Shell implements ViewCallback {
 								return loc.getString("menuBar:edit:redo") + " - " + s;
 						})));
 		
-		// setup commands
-		commandManager = new CommandManager();		
+		// setup commands		
 				
 		commandManager.bind(mntmCollectionNew, dataContext.value("newCollectionCommand"));
 		commandManager.bind(mntmCollectionOpen, dataContext.value("loadCollectionCommand"));
+		commandManager.bind(mntmCollectionClose, dataContext.value("closeCollectionCommand"));		
 		commandManager.bind(mntmCollectionSave, dataContext.value("currentCollection").value("saveCollectionCommand"));
 		commandManager.bind(mntmCollectionSaveAs, dataContext.value("currentCollection").value("saveCollectionAsCommand"));
 		commandManager.bind(mntmCollectionExport, dataContext.value("currentCollection").value("exportCollectionCommand"));
@@ -338,7 +397,7 @@ public class MainView extends Shell implements ViewCallback {
 		commandManager.bind(mntmFind, dataContext.value("currentCollection").value("findCommand"));
 		commandManager.bind(mntmFindNext, dataContext.value("currentCollection").value("findNextCommand"));
 		
-		commandManager.bind(mntmCleanCollection, dataContext.value("currentCollection").value("cleanCollectionCommand"));
+		//commandManager.bind(mntmCleanCollection, dataContext.value("currentCollection").value("cleanCollectionCommand"));
 		
 		commandManager.bind(tltmCollectionNew, dataContext.value("newCollectionCommand"));
 		commandManager.bind(tltmCollectionOpen, dataContext.value("loadCollectionCommand"));		
@@ -367,7 +426,7 @@ public class MainView extends Shell implements ViewCallback {
 	// ---------------------------	
 	
 	@Override
-	public Shell viewObjectRequested() {
-		return this;
+	public void requestClose() {
+		this.close();
 	}	
 }
