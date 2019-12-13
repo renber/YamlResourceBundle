@@ -117,8 +117,8 @@ public class DefaultDialogService implements IDialogService {
 	}
 	
 	@Override
-	public void showDialogFor(IDataContext dataContext, ITemplatingControlFactory contentFactory) {	
-		GenericDialog dialog = new GenericDialog(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL, "DIALOG", dataContext, contentFactory);
+	public void showDialogFor(String title, IDataContext dataContext, ITemplatingControlFactory contentFactory) {
+		GenericDialog dialog = new GenericDialog(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL, title, dataContext, contentFactory);
 		dialog.open();		
 	}
 	
@@ -144,7 +144,7 @@ public class DefaultDialogService implements IDialogService {
 	
 	public void showExportDialog(BundleCollectionViewModel forCollection) {
 		ExportViewModel vm = new ExportViewModel(forCollection, loc, this);
-		ExportView view = new ExportView(getParent(), SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM, loc, new BeansDataContext(vm));
+		ExportView view = new ExportView(getParent(), SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM | SWT.RESIZE, loc, new BeansDataContext(vm));
 		view.setVisible(true);
 	}
 }

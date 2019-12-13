@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -29,6 +30,7 @@ import de.renber.databinding.context.IDataContext;
 import de.renber.databinding.context.beans.BeansDataContext;
 import de.renber.databinding.templating.ITemplatingControlFactory;
 import de.renber.quiterables.QuIterables;
+import de.renber.quiterables.Queriable;
 import de.renber.yamlbundleeditor.exporters.IExportConfiguration;
 import de.renber.yamlbundleeditor.exporters.excel.ExcelExportConfiguration;
 import de.renber.yamlbundleeditor.importers.IImportConfiguration;
@@ -74,13 +76,13 @@ public class ExcelImporter implements IImporter {
 
 		ExcelImportConfiguration config = (ExcelImportConfiguration) configuration;
 
-		File f = dialogService.showSaveFileDialog("Export as excel", new FileExtFilter("Excel-File", "*.xlsx"));
+		File f = dialogService.showSaveFileDialog("Import from excel file", new FileExtFilter("Excel-File", "*.xlsx"));
 		if (f != null) {
 			List<ImportBundleInfo> containedLanguages = getLanguagesFromFile(f);
 
 			// show dialog for user to configure the import
 			final ExcelImportConfigurationViewModel vm = new ExcelImportConfigurationViewModel(config, collection, containedLanguages);
-			dialogService.showDialogFor(new BeansDataContext(vm), new ITemplatingControlFactory() {
+			dialogService.showDialogFor("Excel import settings", new BeansDataContext(vm), new ITemplatingControlFactory() {
 				@Override
 				public Control create(Composite parent, IDataContext itemDataContext) {
 					return new ExcelImportConfigurationComposite(parent, SWT.None, itemDataContext);
@@ -94,7 +96,8 @@ public class ExcelImporter implements IImporter {
 
 			if (vm.isConfirmed()) {
 				// do the import
-				importFromExcelFile(f, collection, containedLanguages, config);
+				int importCount = importFromExcelFile(f, collection, containedLanguages, config);
+				dialogService.showInformationDialog(String.format("Import successful. %d values have been imported", importCount));
 				return config;
 			}
 		}
@@ -102,13 +105,24 @@ public class ExcelImporter implements IImporter {
 		return null;
 	}
 
-	void importFromExcelFile(File file, BundleCollection targetCollection, List<ImportBundleInfo> bundles, ExcelImportConfiguration configuration) throws ImportException {
+	/**
+	 * 
+	 * @param file
+	 * @param targetCollection
+	 * @param bundles
+	 * @param configuration
+	 * @return The number of values which have been imported
+	 * @throws ImportException
+	 */
+	int importFromExcelFile(File file, BundleCollection targetCollection, List<ImportBundleInfo> bundles, ExcelImportConfiguration configuration) throws ImportException {
 		try (XSSFWorkbook workBook = new XSSFWorkbook(file)) {
 			XSSFSheet sheet = workBook.getSheetAt(0);
 
 			// get the number of resource keys in the file
 			int rowCount = sheet.getLastRowNum() + 1;
 
+			int importKeyCount = 0;
+			
 			for (ImportBundleInfo bundle : QuIterables.query(bundles).where(x -> x.includeInImport)) {
 				// does this bundle already exist in the collection?
 				BundleMetaInfo cBundle = QuIterables.query(targetCollection.getBundles()).firstOrDefault(x -> x.languageCode.equals(bundle.languageCode));
@@ -116,8 +130,18 @@ public class ExcelImporter implements IImporter {
 					// we import a bundle which has to be created first
 					cBundle = new BundleMetaInfo();
 					cBundle.languageCode = bundle.languageCode;
-					cBundle.name = bundle.name;
+					cBundle.localizedName = bundle.name;
 					cBundle.author = "<imported>";
+					
+					// retrieve the name of this language in English
+					Locale locale = new Locale(cBundle.languageCode);					
+					cBundle.name = locale.getDisplayName(Locale.US);
+
+					// check if we have a flag icon for this language code
+					Image img = IconProvider.getFlagIcon(locale.getLanguage());
+					if (img != null)
+						cBundle.flagImage = img;
+					
 					targetCollection.getBundles().add(cBundle);
 				}
 
@@ -125,18 +149,31 @@ public class ExcelImporter implements IImporter {
 					XSSFRow row = sheet.getRow(rowIdx);
 					String keyPath = getCellText(row.getCell(0));
 					String localizedText = getCellText(row.getCell(bundle.excelColumn));
-
-					String[] pathParts = keyPath.split("\\" + configuration.separator);
-
-					ResourceKey rKey = ResourceKeyUtils.createPath(targetCollection, null, QuIterables.query(pathParts));
-					LocalizedValue lv = QuIterables.query(rKey.getLocalizedValues()).firstOrDefault(x -> x.languageCode.equals(bundle.languageCode));
-					if (lv == null) {
-						lv = new LocalizedValue(bundle.languageCode, localizedText);
-						rKey.getLocalizedValues().add(lv);
-					} else
-						lv.value = localizedText;
+					
+					// do not import empty values
+					if (!localizedText.isEmpty()) {				
+						Queriable<String> pathParts = QuIterables.query(keyPath.split("\\" + configuration.separator));
+	
+						if (configuration.warnForNonExistingKeys) {
+							if (ResourceKeyUtils.findKey(targetCollection, null, pathParts) == null) {
+								System.out.println("Import to non-existing key: " + keyPath);
+							}
+						}
+						
+						ResourceKey rKey = ResourceKeyUtils.createPath(targetCollection, null, pathParts);
+						LocalizedValue lv = QuIterables.query(rKey.getLocalizedValues()).firstOrDefault(x -> x.languageCode.equals(bundle.languageCode));
+						if (lv == null) {
+							lv = new LocalizedValue(bundle.languageCode, localizedText);
+							rKey.getLocalizedValues().add(lv);
+						} else
+							lv.value = localizedText;
+						
+						importKeyCount++;
+					}
 				}
 			}
+			
+			return importKeyCount;
 		} catch (Exception e) {
 			throw new ImportException("Import failed: " + e.getMessage(), e);
 		}
@@ -147,6 +184,9 @@ public class ExcelImporter implements IImporter {
 	 * converted
 	 */
 	private String getCellText(XSSFCell cell) {
+		if (cell == null)
+			return "";
+		
 		switch (cell.getCellType()) {
 		case XSSFCell.CELL_TYPE_STRING:
 			return cell.getStringCellValue();
@@ -183,10 +223,12 @@ public class ExcelImporter implements IImporter {
 
 			for (int rowCell = 1; rowCell < headerRow.getLastCellNum(); rowCell++) {
 				// cell content is [languageCode] - [languageName]
-				String cellContent = headerRow.getCell(rowCell).getStringCellValue();
-				ImportBundleInfo bInfo = parseHeaderCell(cellContent);
-				bInfo.excelColumn = rowCell;
-				containedLanguages.add(bInfo);
+				String cellContent = getCellText(headerRow.getCell(rowCell));
+				if (!cellContent.isEmpty()) {
+					ImportBundleInfo bInfo = parseHeaderCell(cellContent);
+					bInfo.excelColumn = rowCell;
+					containedLanguages.add(bInfo);
+				}
 			}
 
 			return containedLanguages;
@@ -215,8 +257,8 @@ public class ExcelImporter implements IImporter {
 	@Override
 	public BundleCollection doImport(IImportConfiguration configuration) throws ImportException {
 		BundleCollection bundle = new BundleCollection();
-		doImport(bundle, configuration);
-		return bundle;
+		IImportConfiguration config = doImport(bundle, configuration);
+		return config == null ? null : bundle;
 	}
 
 	@Override

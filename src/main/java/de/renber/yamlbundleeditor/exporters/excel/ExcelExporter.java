@@ -9,11 +9,13 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import de.renber.quiterables.QuIterables;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -70,6 +72,8 @@ public class ExcelExporter implements IExporter {
 		return IconProvider.getImage("export/excel");
 	}
 
+	private List<String> filterLines;
+
 	@Override
 	public void doExport(BundleCollection collection, IExportConfiguration configuration) throws ExportException {
 		if (collection == null)
@@ -79,6 +83,15 @@ public class ExcelExporter implements IExporter {
 				throw new IllegalArgumentException("The parameter configuration must not be null and of type ExcelExportConfiguration.");
 		
 		ExcelExportConfiguration config = (ExcelExportConfiguration)configuration;
+
+		filterLines = new ArrayList<>();
+		if (config.exportFilter != null && !config.exportFilter.isEmpty()) {
+			for (String s : config.exportFilter.split("\\r?\\n")) {
+				filterLines.add(s.toLowerCase());
+			}
+		}
+
+		List<BundleMetaInfo> exportBundles = QuIterables.query(collection.getBundles()).where(x -> config.getLanguagesToExport().contains(x.languageCode)).toList();
 		
 		File f = dialogService.showSaveFileDialog("Export as excel", new FileExtFilter("Excel-File", "*.xlsx"));
 		if (f != null) {
@@ -102,7 +115,7 @@ public class ExcelExporter implements IExporter {
 					cell.setCellValue("Key");
 					cell.setCellStyle(headerCellStyle);
 					int cellNo = 1;
-					for (BundleMetaInfo metaInfo : collection.getBundles()) {
+					for (BundleMetaInfo metaInfo : exportBundles) {
 						cell = row.createCell(cellNo);
 						cell.setCellValue(metaInfo.languageCode + " - " + metaInfo.localizedName);
 						cell.setCellStyle(headerCellStyle);
@@ -120,25 +133,40 @@ public class ExcelExporter implements IExporter {
 				missingCellStyle.setFillPattern(CellStyle.THICK_FORWARD_DIAG);
 				
 				for (Entry<String, ResourceKey> entry : keys.entrySet()) {
-					Row row = sheet.createRow(currRow);
-					Cell cell = row.createCell(0);
-					cell.setCellValue(entry.getKey());
-					int cellNo = 1;
-					for (BundleMetaInfo metaInfo : collection.getBundles()) {
-						cell = row.createCell(cellNo);
 
-						Object val = entry.getValue().getLocalizedValue(metaInfo.languageCode);
-						if (val != null)
-							cell.setCellValue(val.toString());
-						else
-						{
-							if (config.highlightMissingValues)
-								cell.setCellStyle(missingCellStyle);	
+					if (matchesFilter(entry.getKey(), filterLines)) {
+
+						if (config.onlyExportKeysWithMissingValues) {
+							boolean allSet = true;
+							for (BundleMetaInfo metaInfo : exportBundles) {
+								Object val = entry.getValue().getLocalizedValue(metaInfo.languageCode);
+								if (val == null) {
+									allSet = false;
+									break;
+								}
+							}
+							if (allSet) continue;
 						}
 
-						cellNo++;
+						Row row = sheet.createRow(currRow);
+						Cell cell = row.createCell(0);
+						cell.setCellValue(entry.getKey());
+						int cellNo = 1;
+						for (BundleMetaInfo metaInfo : exportBundles) {
+							cell = row.createCell(cellNo);
+
+							Object val = entry.getValue().getLocalizedValue(metaInfo.languageCode);
+							if (val != null)
+								cell.setCellValue(val.toString());
+							else {
+								if (config.highlightMissingValues)
+									cell.setCellStyle(missingCellStyle);
+							}
+
+							cellNo++;
+						}
+						currRow++;
 					}
-					currRow++;
 				}
 
 				// autosize columns
@@ -154,6 +182,18 @@ public class ExcelExporter implements IExporter {
 				throw new ExportException("Export failed.", e);
 			}
 		}
+	}
+
+	private boolean matchesFilter(String text, List<String> filters) {
+		if (filterLines.size() == 0)
+			return true;
+
+		for(String filter: filters) {
+			if (text.toLowerCase().contains(filter.toLowerCase()))
+				return true;
+		}
+
+		return false;
 	}
 
 	/**

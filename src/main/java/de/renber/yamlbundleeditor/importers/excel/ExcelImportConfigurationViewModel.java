@@ -74,6 +74,14 @@ public class ExcelImportConfigurationViewModel extends WindowedViewModelBase {
 		changeProperty(configuration, "separator", newValue);
 	}
 	
+	public boolean getWarnForNonExistingKeys() {
+		return configuration.warnForNonExistingKeys;
+	}
+	
+	public void setWarnForNonExistingKeys(boolean newValue) {
+		changeProperty(configuration, "warnForNonExistingKeys", newValue);
+	}
+	
 	public ICommand getOkCommand() {
 		return okCommand;
 	}

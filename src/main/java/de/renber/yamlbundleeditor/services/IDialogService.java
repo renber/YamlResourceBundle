@@ -34,5 +34,5 @@ public interface IDialogService {
 	
 	public void showExportDialog(BundleCollectionViewModel forCollection);
 		
-	public void showDialogFor(IDataContext dataContext, ITemplatingControlFactory contentFactory);
+	public void showDialogFor(String title, IDataContext dataContext, ITemplatingControlFactory contentFactory);
 }

@@ -413,6 +413,13 @@ public class BundleCollectionViewModel extends DataViewModelBase<BundleCollectio
 	protected void setHasUnsavedChanges(boolean newValue) {
 		changeProperty("hasUnsavedChanges", newValue);
 	}
+	
+	/**
+	 * Sets hasUnsavedChanges to true
+	 */
+	public void signalUnsavedChanges() {
+		setHasUnsavedChanges(true);
+	}
 
 	public BundleMetaViewModel getSelectedBundle() {
 		return selectedBundle;

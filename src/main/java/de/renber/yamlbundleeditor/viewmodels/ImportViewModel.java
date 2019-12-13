@@ -30,29 +30,31 @@ public class ImportViewModel extends ViewModelBase {
 	MainViewModel mainViewModel;
 	ILocalizationService loc;
 	IDialogService dialogService;
-	
-	IObservableList<ImporterViewModel> availableImporters = new WritableList<ImporterViewModel>();		
-	
+
+	IObservableList<ImporterViewModel> availableImporters = new WritableList<ImporterViewModel>();
+
 	/**
 	 * Creates an ImportViewModel
-	 * @param mainViewModel Needed to check the currently opened collection (if any)
+	 * 
+	 * @param mainViewModel
+	 *            Needed to check the currently opened collection (if any)
 	 * @param localizationService
 	 * @param dialogService
 	 */
 	public ImportViewModel(MainViewModel mainViewModel, ILocalizationService localizationService, IDialogService dialogService) {
-		
-		this.mainViewModel = mainViewModel;		
+
+		this.mainViewModel = mainViewModel;
 		this.loc = localizationService;
 		this.dialogService = dialogService;
-		
-		// add the included exporters		
-		availableImporters.add(new ImporterViewModel(mainViewModel, new ExcelImporter(loc, dialogService)));		
-	}	
-	
+
+		// add the included exporters
+		availableImporters.add(new ImporterViewModel(mainViewModel, new ExcelImporter(loc, dialogService)));
+	}
+
 	// ----------------------------
 	// Property getters and setters
-	// ----------------------------	
-	
+	// ----------------------------
+
 	/***
 	 * Return a list of available exporters
 	 */
@@ -63,64 +65,83 @@ public class ImportViewModel extends ViewModelBase {
 
 /**
  * Holds information about an importer
+ * 
  * @author renber
  */
 class ImporterViewModel extends ViewModelBase {
-	
+
 	IImporter importerInstance;
 	IImportConfiguration importerConfig;
-	
+
 	ICommand importCommand;
-	
+
 	public String getName() {
 		return importerInstance.getName();
 	}
-	
+
 	public Image getImage() {
 		return importerInstance.getImage();
 	}
-	
+
 	public IImporter getImporterInstance() {
 		return importerInstance;
 	}
-	
+
 	public IImportConfiguration getConfiguration() {
 		return importerConfig;
 	}
-	
+
 	public ICommand getImportCommand() {
 		return importCommand;
 	}
-	
-	 /**
-	  * Creates a ViewModel for the given importer
-	  * @param mainViewModel Needed to check the currently opened collection (if any)
-	  * @param importer
-	  */
+
+	/**
+	 * Creates a ViewModel for the given importer
+	 * 
+	 * @param mainViewModel
+	 *            Needed to check the currently opened collection (if any)
+	 * @param importer
+	 */
 	public ImporterViewModel(MainViewModel mainViewModel, IImporter importer) {
 		importerInstance = importer;
-		importerConfig = importer.getDefaultConfiguration();		
-		
-		importCommand = new RelayCommand( () -> {
+		importerConfig = importer.getDefaultConfiguration();
+
+		importCommand = new RelayCommand(() -> {
 			try {
 				// if there is an active collection
 				// pass it to the importer
 				BundleCollectionViewModel targetBundle = mainViewModel.getCurrentCollection();
 				if (targetBundle != null) {
-					importerInstance.doImport(targetBundle.getModel(), importerConfig);
-					// since we do not know what has been changed in the model, recreate the ViewModel		
-					mainViewModel.setCurrentCollection(targetBundle.getModel());
+					if (importerInstance.doImport(targetBundle.getModel(), importerConfig) != null) {
+						// since we do not know what has been changed in the
+						// model, recreate the ViewModel
+						String basename = targetBundle.getBasename();
+						String path = targetBundle.getPath();
+						
+						mainViewModel.setCurrentCollection(targetBundle.getModel());
+						
+						// restore file information
+						mainViewModel.getCurrentCollection().setBasename(basename);
+						mainViewModel.getCurrentCollection().setPath(path);
+						mainViewModel.getCurrentCollection().signalUnsavedChanges();
+					}
 				} else {
 					// import into a new bundle
 					BundleCollection importedBundle = importerInstance.doImport(importerConfig);
-										
-					mainViewModel.setCurrentCollection(importedBundle);
+
+					if (importedBundle == null)
+						// choose the right overload
+						mainViewModel.setCurrentCollection((BundleCollectionViewModel) null);
+					else {
+						mainViewModel.setCurrentCollection(importedBundle);
+						mainViewModel.getCurrentCollection().signalUnsavedChanges();
+					}
 				}
 			} catch (ImportException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();				
+				e.printStackTrace();
 			}
 		});
-	}	
-	
+	}
+
 }

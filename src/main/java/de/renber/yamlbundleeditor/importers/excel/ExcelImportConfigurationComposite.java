@@ -39,6 +39,8 @@ public class ExcelImportConfigurationComposite extends Composite {
 	private TableViewer languagesTableViewer;
 	private Label lblNewLabel;
 	private Combo comboSeparator;
+	private Label lblNewLabel_1;
+	private Button cbWarnForNonExistingKeys;
 	
 	/**
 	 * Create the composite.
@@ -61,13 +63,18 @@ public class ExcelImportConfigurationComposite extends Composite {
 		setLayout(new GridLayout(2, false));
 		
 		lblNewLabel = new Label(this, SWT.NONE);
-		lblNewLabel.setText("Separator");
+		lblNewLabel.setText("Separator:");
 		
 		comboSeparator = new Combo(this, SWT.NONE);
 		comboSeparator.setItems(new String[] {":", "_", "/", "\\"});
 		GridData gd_comboSeparator = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
 		gd_comboSeparator.widthHint = 60;
 		comboSeparator.setLayoutData(gd_comboSeparator);
+		
+		lblNewLabel_1 = new Label(this, SWT.NONE);
+		lblNewLabel_1.setText("Warn when importing non-existing keys: ");
+		
+		cbWarnForNonExistingKeys = new Button(this, SWT.CHECK);
 		
 		lblLanguagesContainedIn = new Label(this, SWT.WRAP);
 		lblLanguagesContainedIn.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
@@ -121,6 +128,7 @@ public class ExcelImportConfigurationComposite extends Composite {
 		ComplexBind bind = new ComplexBind();
 					
 		bindingContext.bindValue(WidgetProperties.text().observe(comboSeparator), dataContext.value("levelSeparator").observe());
+		bindingContext.bindValue(WidgetProperties.selection().observe(cbWarnForNonExistingKeys), dataContext.value("warnForNonExistingKeys").observe());
 		
 		bind.table(languagesTableViewer, dataContext.value("containedLanguages").observe());		
 	}

@@ -16,6 +16,40 @@
           <testTarget>1.8</testTarget>
         </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.5.1</version>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <includeScope>runtime</includeScope>
+              <includeTypes>jar</includeTypes>             
+              <outputDirectory>
+              ${project.build.directory}/lib/</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    
+      <!-- Use the jar plugin to set the jar's main class and classpath -->
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>de.renber.yamlbundleeditor.Starter</mainClass>
+              <classpathPrefix>lib/</classpathPrefix>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
     </plugins>
     </build>
   
@@ -76,7 +110,12 @@
   		<groupId>de.renber.databinding</groupId>
   		<artifactId>jface_mvvm</artifactId>
   		<version>1.0.0-SNAPSHOT</version>
-  	</dependency>   
+  	</dependency>
+    <dependency>
+      <groupId>com.miglayout</groupId>
+      <artifactId>miglayout-swt</artifactId>
+      <version>5.2</version>
+    </dependency>
   	<dependency>
   		<groupId>junit</groupId>
 		<artifactId>junit</artifactId>

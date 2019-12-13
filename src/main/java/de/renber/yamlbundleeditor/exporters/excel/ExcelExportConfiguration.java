@@ -16,6 +16,18 @@ public class ExcelExportConfiguration implements IExportConfiguration {
 	 * Should cells with missing values be highlighted
 	 */
 	public boolean highlightMissingValues = true;
+
+	/**
+	 * Only export keys which have missing values
+	 */
+	public boolean onlyExportKeysWithMissingValues = false;
+
+	/**
+	 * Only export keys which match this filter
+	 * (multiple filters are possible and have to be separated by line-break;
+	 * a key is then included when it matches at least one line)
+	 */
+	public String exportFilter = "";
 	
 	private List<String> languagesToExport = new ArrayList<String>();
 	

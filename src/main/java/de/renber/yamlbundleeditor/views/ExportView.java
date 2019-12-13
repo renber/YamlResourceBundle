@@ -15,6 +15,7 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -73,7 +74,7 @@ public class ExportView extends Shell {
 	public ExportView(Shell parent, int style, ILocalizationService localizationService, IDataContext dataContext) {
 		super(parent, style);		
 
-		this.setSize(640, 480);		
+		this.setSize(640, 520);
 		// center on parent shell
 		this.setLocation(parent.getLocation().x + (parent.getSize().x - this.getSize().x) / 2, parent.getLocation().y + (parent.getSize().y - this.getSize().y) / 2);
 		
@@ -127,7 +128,12 @@ public class ExportView extends Shell {
 		grpAusgewhlterExporter.setLayout(new FillLayout(SWT.HORIZONTAL));
 		grpAusgewhlterExporter.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
-		configurationPresenter = new ContentPresenter(grpAusgewhlterExporter, SWT.NONE);
+		ScrolledComposite scrolledComposite = new ScrolledComposite(grpAusgewhlterExporter, SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+
+		configurationPresenter = new ContentPresenter(scrolledComposite, SWT.NONE);
+		scrolledComposite.setContent(configurationPresenter);
 
 		composite = new Composite(this, SWT.NONE);
 		composite.setLayout(new GridLayout(2, false));
