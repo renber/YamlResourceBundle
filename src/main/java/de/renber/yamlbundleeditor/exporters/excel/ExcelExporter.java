@@ -127,7 +127,10 @@ public class ExcelExporter implements IExporter {
 				// write the resource keys
 				int currRow = 1;
 				Map<String, ResourceKey> keys = getFlatValues(collection.getValues(), "", config.levelSeparator);
-				
+
+				XSSFCellStyle multilineCellStyle = workBook.createCellStyle();
+				multilineCellStyle.setWrapText(true);
+
 				XSSFCellStyle missingCellStyle = workBook.createCellStyle();
 				missingCellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
 				missingCellStyle.setFillPattern(CellStyle.THICK_FORWARD_DIAG);
@@ -151,13 +154,20 @@ public class ExcelExporter implements IExporter {
 						Row row = sheet.createRow(currRow);
 						Cell cell = row.createCell(0);
 						cell.setCellValue(entry.getKey());
+						int maxCellLines = 1;
 						int cellNo = 1;
 						for (BundleMetaInfo metaInfo : exportBundles) {
 							cell = row.createCell(cellNo);
 
 							Object val = entry.getValue().getLocalizedValue(metaInfo.languageCode);
-							if (val != null)
-								cell.setCellValue(val.toString());
+							if (val != null) {
+								String v = val.toString();
+								cell.setCellValue(v);
+								if (v.contains("\n")) {
+									cell.setCellStyle(multilineCellStyle);
+									maxCellLines = Math.max(1, countLines(v));
+								}
+							}
 							else {
 								if (config.highlightMissingValues)
 									cell.setCellStyle(missingCellStyle);
@@ -165,6 +175,9 @@ public class ExcelExporter implements IExporter {
 
 							cellNo++;
 						}
+
+						row.setHeightInPoints(maxCellLines * sheet.getDefaultRowHeightInPoints());
+
 						currRow++;
 					}
 				}
@@ -182,6 +195,16 @@ public class ExcelExporter implements IExporter {
 				throw new ExportException("Export failed.", e);
 			}
 		}
+	}
+
+	private int countLines(String s) {
+		int cnt = 0;
+		int idx = 0;
+		while (idx >= 0) {
+			cnt++;
+			idx = s.indexOf("\n", idx + 1);
+		}
+		return cnt;
 	}
 
 	private boolean matchesFilter(String text, List<String> filters) {
