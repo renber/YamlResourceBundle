@@ -51,11 +51,6 @@ public class ExcelImporter implements IImporter {
 	ILocalizationService loc;
 	IDialogService dialogService;
 
-	public ExcelImporter(ILocalizationService localizationService, IDialogService dialogService) {
-		this.loc = localizationService;
-		this.dialogService = dialogService;
-	}
-
 	@Override
 	public String getName() {
 		return "Microsoft Excel (*.xlsx)";
@@ -64,6 +59,11 @@ public class ExcelImporter implements IImporter {
 	@Override
 	public Image getImage() {
 		return IconProvider.getImage("import/excel");
+	}
+
+	public ExcelImporter(ILocalizationService localizationService, IDialogService dialogService) {
+		this.loc = localizationService;
+		this.dialogService = dialogService;
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class ExcelImporter implements IImporter {
 
 		ExcelImportConfiguration config = (ExcelImportConfiguration) configuration;
 
-		File f = dialogService.showSaveFileDialog("Import from excel file", new FileExtFilter("Excel-File", "*.xlsx"));
+		File f = dialogService.showOpenFileDialog("Import from excel file", new FileExtFilter("Excel-File", "*.xlsx"));
 		if (f != null) {
 			List<ImportBundleInfo> containedLanguages = getLanguagesFromFile(f);
 

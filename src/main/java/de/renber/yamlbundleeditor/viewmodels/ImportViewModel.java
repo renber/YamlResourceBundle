@@ -2,6 +2,7 @@ package de.renber.yamlbundleeditor.viewmodels;
 
 import java.util.List;
 
+import de.renber.yamlbundleeditor.importers.diff.DiffImporter;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.observable.list.WritableList;
@@ -49,6 +50,7 @@ public class ImportViewModel extends ViewModelBase {
 
 		// add the included exporters
 		availableImporters.add(new ImporterViewModel(mainViewModel, new ExcelImporter(loc, dialogService)));
+		availableImporters.add(new ImporterViewModel(mainViewModel, new DiffImporter(loc, dialogService)));
 	}
 
 	// ----------------------------
