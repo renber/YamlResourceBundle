@@ -127,7 +127,7 @@ public class YamlBundleReader implements BundleReader {
 					readValues((Map<String, Object>) entry.getValue(), parentPath + entry.getKey() + PATH_SEPARATOR,
 							targetMap);
 				} else
-					throw new RuntimeException("Unknown value type: " + entry.getValue().getClass().getName());
+					throw new RuntimeException("Unknown value type of entry '" + (parentPath + entry.getKey()) + "': " + entry.getValue().getClass().getName());
 			}
 		}
 	}	

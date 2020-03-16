@@ -92,11 +92,13 @@ public class MainViewModel extends WindowedViewModelBase {
 										Bundle b = bundleReader.read(stream);
 										b.getMeta().filePath = path.toString();
 										bundleList.add(b);
+									} catch (Exception ee) {
+										System.err.println("Error while reading: " + fname);
+										ee.printStackTrace();
 									}
 								}
 							}
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
+						} catch (Exception e1) {
 							e1.printStackTrace();
 						}
 
